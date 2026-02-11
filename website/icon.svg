@@ -1,0 +1,20 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background rounded square -->
+  <rect width="512" height="512" rx="96" fill="#0d1117"/>
+
+  <!-- Box base -->
+  <path d="M128 220L256 160L384 220V340L256 400L128 340V220Z" fill="#1c2128" stroke="#30363d" stroke-width="4"/>
+
+  <!-- Box top flap left -->
+  <path d="M128 220L256 280L256 160L128 220Z" fill="#21262d"/>
+
+  <!-- Box top flap right -->
+  <path d="M384 220L256 280L256 160L384 220Z" fill="#161b22"/>
+
+  <!-- Arrow pointing down into box -->
+  <path d="M256 80L256 200" stroke="#58a6ff" stroke-width="24" stroke-linecap="round"/>
+  <path d="M200 156L256 212L312 156" stroke="#58a6ff" stroke-width="24" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Checkmark on box front -->
+  <path d="M220 320L248 348L296 284" stroke="#3fb950" stroke-width="16" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

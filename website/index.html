@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>onboard.computer - Developer onboarding for macOS</title>
+  <meta name="description" content="Get your machine ready to build. Install dev tools and apps with a single config file.">
+  <link rel="icon" type="image/svg+xml" href="/icon.svg">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    :root {
+      --bg: #0d1117;
+      --bg-secondary: #161b22;
+      --border: #30363d;
+      --text: #e6edf3;
+      --text-muted: #8b949e;
+      --blue: #58a6ff;
+      --green: #3fb950;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+    }
+
+    /* Header */
+    header {
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border);
+    }
+
+    .header-content {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+      color: var(--text);
+    }
+
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+    }
+
+    .logo-text {
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .github-link {
+      color: var(--text-muted);
+      text-decoration: none;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .github-link:hover {
+      color: var(--text);
+    }
+
+    /* Hero */
+    .hero {
+      padding: 80px 0 60px;
+      text-align: center;
+    }
+
+    .hero-icon {
+      width: 96px;
+      height: 96px;
+      margin-bottom: 32px;
+    }
+
+    h1 {
+      font-size: 48px;
+      font-weight: 700;
+      margin-bottom: 16px;
+      letter-spacing: -0.02em;
+    }
+
+    .tagline {
+      font-size: 20px;
+      color: var(--text-muted);
+      margin-bottom: 40px;
+      max-width: 500px;
+      margin-left: auto;
+      margin-right: auto;
+    }
+
+    .download-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      background: var(--blue);
+      color: #fff;
+      padding: 14px 28px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-size: 16px;
+      font-weight: 600;
+      transition: transform 0.15s, box-shadow 0.15s;
+    }
+
+    .download-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 24px rgba(88, 166, 255, 0.25);
+    }
+
+    .download-info {
+      margin-top: 12px;
+      font-size: 13px;
+      color: var(--text-muted);
+    }
+
+    /* Demo Video */
+    .demo-section {
+      padding: 40px 0 80px;
+    }
+
+    .video-container {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      overflow: hidden;
+      aspect-ratio: 16 / 10;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .video-container video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .video-placeholder {
+      text-align: center;
+      color: var(--text-muted);
+    }
+
+    .video-placeholder-icon {
+      font-size: 48px;
+      margin-bottom: 16px;
+      opacity: 0.5;
+    }
+
+    /* Features */
+    .features {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .features-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .feature {
+      text-align: center;
+    }
+
+    .feature-icon {
+      font-size: 32px;
+      margin-bottom: 16px;
+    }
+
+    .feature h3 {
+      font-size: 18px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .feature p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* How it works */
+    .how-it-works {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .how-it-works h2 {
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 40px;
+    }
+
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 32px;
+    }
+
+    .step {
+      text-align: center;
+    }
+
+    .step-number {
+      width: 40px;
+      height: 40px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 50%;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+
+    .step h3 {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+
+    .step p {
+      font-size: 14px;
+      color: var(--text-muted);
+    }
+
+    /* Config example */
+    .config-section {
+      padding: 60px 0;
+      border-top: 1px solid var(--border);
+    }
+
+    .config-section h2 {
+      font-size: 28px;
+      text-align: center;
+      margin-bottom: 16px;
+    }
+
+    .config-section > p {
+      text-align: center;
+      color: var(--text-muted);
+      margin-bottom: 32px;
+    }
+
+    .code-block {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border);
+      border-radius: 8px;
+      padding: 24px;
+      overflow-x: auto;
+      font-family: 'SF Mono', Monaco, Consolas, monospace;
+      font-size: 13px;
+      line-height: 1.5;
+    }
+
+    .code-block .comment { color: var(--text-muted); }
+    .code-block .key { color: var(--blue); }
+    .code-block .string { color: var(--green); }
+
+    /* Footer */
+    footer {
+      padding: 40px 0;
+      border-top: 1px solid var(--border);
+      text-align: center;
+      color: var(--text-muted);
+      font-size: 14px;
+    }
+
+    footer a {
+      color: var(--text-muted);
+      text-decoration: none;
+    }
+
+    footer a:hover {
+      color: var(--text);
+    }
+
+    /* Responsive */
+    @media (max-width: 768px) {
+      h1 {
+        font-size: 32px;
+      }
+
+      .tagline {
+        font-size: 16px;
+      }
+
+      .features-grid,
+      .steps {
+        grid-template-columns: 1fr;
+        gap: 24px;
+      }
+    }
+  </style>
+</head>
+<body>
+
+  <header>
+    <div class="container header-content">
+      <a href="/" class="logo">
+        <img src="/icon.svg" alt="onboard.computer" class="logo-icon">
+        <span class="logo-text">onboard.computer</span>
+      </a>
+      <a href="https://github.com/nicholasareed/onboard-af" class="github-link">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M12 0C5.37 0 0 5.37 0 12c0 5.31 3.435 9.795 8.205 11.385.6.105.825-.255.825-.57 0-.285-.015-1.23-.015-2.235-3.015.555-3.795-.735-4.035-1.41-.135-.345-.72-1.41-1.23-1.695-.42-.225-1.02-.78-.015-.795.945-.015 1.62.87 1.845 1.23 1.08 1.815 2.805 1.305 3.495.99.105-.78.42-1.305.765-1.605-2.67-.3-5.46-1.335-5.46-5.925 0-1.305.465-2.385 1.23-3.225-.12-.3-.54-1.53.12-3.18 0 0 1.005-.315 3.3 1.23.96-.27 1.98-.405 3-.405s2.04.135 3 .405c2.295-1.56 3.3-1.23 3.3-1.23.66 1.65.24 2.88.12 3.18.765.84 1.23 1.905 1.23 3.225 0 4.605-2.805 5.625-5.475 5.925.435.375.81 1.095.81 2.22 0 1.605-.015 2.895-.015 3.3 0 .315.225.69.825.57A12.02 12.02 0 0024 12c0-6.63-5.37-12-12-12z"/>
+        </svg>
+        GitHub
+      </a>
+    </div>
+  </header>
+
+  <main>
+    <section class="hero">
+      <div class="container">
+        <img src="/icon.svg" alt="onboard.computer" class="hero-icon">
+        <h1>onboard.computer</h1>
+        <p class="tagline">Get your machine ready to build. Install dev tools and apps with a single config file.</p>
+        <a href="/onboard-computer.dmg" class="download-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3"/>
+          </svg>
+          Download for macOS
+        </a>
+        <p class="download-info">macOS 11+ required. Free and open source.</p>
+      </div>
+    </section>
+
+    <section class="demo-section">
+      <div class="container">
+        <div class="video-container">
+          <!-- Replace with actual video when ready -->
+          <video autoplay loop muted playsinline id="demo-video" style="display: none;">
+            <source src="/demo.mp4" type="video/mp4">
+          </video>
+          <div class="video-placeholder" id="video-placeholder">
+            <div class="video-placeholder-icon">&#9658;</div>
+            <p>Demo video coming soon</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="features">
+      <div class="container">
+        <div class="features-grid">
+          <div class="feature">
+            <div class="feature-icon">&#128230;</div>
+            <h3>Drag & Drop</h3>
+            <p>Load any .onboard config file by dragging it onto the app window.</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">&#9989;</div>
+            <h3>Auto-Check</h3>
+            <p>Instantly see which tools are installed and which need setup.</p>
+          </div>
+          <div class="feature">
+            <div class="feature-icon">&#9889;</div>
+            <h3>One-Click Install</h3>
+            <p>Install all missing dependencies with a single button click.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-it-works">
+      <div class="container">
+        <h2>How it works</h2>
+        <div class="steps">
+          <div class="step">
+            <div class="step-number">1</div>
+            <h3>Create a config</h3>
+            <p>Write a .onboard YAML file listing the tools and apps your team needs.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">2</div>
+            <h3>Share with your team</h3>
+            <p>Put it in your repo, host it on a URL, or send it directly.</p>
+          </div>
+          <div class="step">
+            <div class="step-number">3</div>
+            <h3>One-click setup</h3>
+            <p>Team members drop the file and click Install All. Done.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="config-section">
+      <div class="container">
+        <h2>Simple YAML config</h2>
+        <p>Define exactly what your project needs. No scripting required.</p>
+        <pre class="code-block"><span class="key">name</span>: <span class="string">"My Project Setup"</span>
+<span class="key">description</span>: <span class="string">"Everything you need to start building"</span>
+
+<span class="key">dependencies</span>:
+  - <span class="key">id</span>: <span class="string">homebrew</span>
+    <span class="key">name</span>: <span class="string">Homebrew</span>
+    <span class="key">desc</span>: <span class="string">The package manager for macOS</span>
+    <span class="key">check</span>: <span class="string">which brew</span>
+    <span class="key">install</span>: <span class="string">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</span>
+
+  - <span class="key">id</span>: <span class="string">node</span>
+    <span class="key">name</span>: <span class="string">Node.js</span>
+    <span class="key">desc</span>: <span class="string">JavaScript runtime</span>
+    <span class="key">check</span>: <span class="string">which node</span>
+    <span class="key">install</span>: <span class="string">brew install node</span>
+    <span class="key">depends_on</span>: <span class="string">homebrew</span>
+
+<span class="key">apps</span>:
+  - <span class="key">id</span>: <span class="string">vscode</span>
+    <span class="key">name</span>: <span class="string">VS Code</span>
+    <span class="key">desc</span>: <span class="string">Code editor</span>
+    <span class="key">check</span>: <span class="string">ls /Applications/Visual\ Studio\ Code.app</span>
+    <span class="key">install</span>: <span class="string">brew install --cask visual-studio-code</span>
+    <span class="key">depends_on</span>: <span class="string">homebrew</span></pre>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <div class="container">
+      <p>Made by <a href="https://fieldtheory.co">Field Theory</a></p>
+    </div>
+  </footer>
+
+  <script>
+    // Check if demo video exists and show it
+    const video = document.getElementById('demo-video');
+    const placeholder = document.getElementById('video-placeholder');
+
+    video.addEventListener('loadeddata', () => {
+      video.style.display = 'block';
+      placeholder.style.display = 'none';
+    });
+
+    video.addEventListener('error', () => {
+      // Keep placeholder visible
+    });
+  </script>
+
+</body>
+</html>

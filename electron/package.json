@@ -1,15 +1,44 @@
 {
-  "name": "onboard",
+  "name": "onboard-computer",
+  "productName": "onboard.computer",
   "version": "1.0.0",
   "description": "Developer onboarding — get your machine ready to build.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
-    "dev": "electron . --dev"
+    "dev": "electron . --dev",
+    "build": "electron-builder --mac",
+    "build:dmg": "electron-builder --mac dmg"
   },
   "author": "Field Theory",
   "license": "MIT",
+  "dependencies": {
+    "js-yaml": "^4.1.0"
+  },
   "devDependencies": {
-    "electron": "^33.0.0"
+    "electron": "^33.0.0",
+    "electron-builder": "^25.1.8"
+  },
+  "build": {
+    "appId": "computer.onboard.app",
+    "productName": "onboard.computer",
+    "mac": {
+      "category": "public.app-category.developer-tools",
+      "icon": "assets/icon.icns",
+      "target": ["dmg"]
+    },
+    "dmg": {
+      "title": "onboard.computer",
+      "icon": "assets/icon.icns"
+    },
+    "fileAssociations": [{
+      "ext": "onboard",
+      "name": "Onboard Configuration",
+      "role": "Editor"
+    }],
+    "files": [
+      "**/*",
+      "!examples/**"
+    ]
   }
 }

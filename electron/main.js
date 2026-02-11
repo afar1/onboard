@@ -7,25 +7,27 @@ const path = require('path');
 const { exec, spawn } = require('child_process');
 const fs = require('fs');
 const os = require('os');
+const yaml = require('js-yaml');
 
 // ─── Window Setup ──────────────────────────────────────────────────
-// The window is centered and takes up ~38% of the screen.
-// Dense, focused, not full-screen — like a setup wizard.
+
+let mainWindow = null;
+let pendingFilePath = null;
 
 function createWindow() {
   const { screen } = require('electron');
   const primaryDisplay = screen.getPrimaryDisplay();
   const { width: screenW, height: screenH } = primaryDisplay.workAreaSize;
 
-  const winWidth = Math.min(Math.round(screenW * 0.38), 580);
-  const winHeight = Math.round(screenH * 0.75);
+  const winWidth = Math.min(Math.round(screenW * 0.45), 720);
+  const winHeight = Math.round(screenH * 0.78);
 
-  const win = new BrowserWindow({
+  mainWindow = new BrowserWindow({
     width: winWidth,
     height: winHeight,
-    minWidth: 480,
-    minHeight: 500,
-    maxWidth: 580,
+    minWidth: 580,
+    minHeight: 520,
+    maxWidth: 900,
     center: true,
     titleBarStyle: 'hiddenInset',
     backgroundColor: '#0d1117',
@@ -36,8 +38,17 @@ function createWindow() {
     },
   });
 
-  win.loadFile('index.html');
-  return win;
+  mainWindow.loadFile('index.html');
+
+  // Handle pending file open (from double-click before app was ready)
+  if (pendingFilePath) {
+    mainWindow.webContents.on('did-finish-load', () => {
+      mainWindow.webContents.send('config:fileOpened', pendingFilePath);
+      pendingFilePath = null;
+    });
+  }
+
+  return mainWindow;
 }
 
 app.whenReady().then(() => {
@@ -52,11 +63,18 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') app.quit();
 });
 
-// ─── Shell Helpers ─────────────────────────────────────────────────
-// All shell commands run through these. The renderer asks via IPC,
-// the main process executes and returns results.
+// Handle file open events (double-click on .onboard file)
+app.on('open-file', (event, filePath) => {
+  event.preventDefault();
+  if (mainWindow) {
+    mainWindow.webContents.send('config:fileOpened', filePath);
+  } else {
+    pendingFilePath = filePath;
+  }
+});
 
-// Build a shell env that includes common paths (Homebrew, nvm, etc.)
+// ─── Shell Helpers ─────────────────────────────────────────────────
+
 function getShellEnv() {
   const homeDir = os.homedir();
   const extraPaths = [
@@ -93,66 +111,45 @@ function runCommand(command) {
   });
 }
 
+// ─── Config Validation ─────────────────────────────────────────────
+
+function validateConfig(config) {
+  if (!config || typeof config !== 'object') {
+    throw new Error('Invalid config: not an object');
+  }
+  if (!config.name) {
+    throw new Error('Config missing "name"');
+  }
+  if (!Array.isArray(config.dependencies)) {
+    throw new Error('Config missing "dependencies" array');
+  }
+  if (!Array.isArray(config.apps)) {
+    throw new Error('Config missing "apps" array');
+  }
+
+  const validateItem = (item, section, index) => {
+    if (!item.id) throw new Error(`Item ${index} in ${section} missing "id"`);
+    if (!item.name) throw new Error(`Item "${item.id}" missing "name"`);
+    if (!item.check) throw new Error(`Item "${item.id}" missing "check"`);
+    if (!item.install) throw new Error(`Item "${item.id}" missing "install"`);
+  };
+
+  config.dependencies.forEach((d, i) => validateItem(d, 'dependencies', i));
+  config.apps.forEach((a, i) => validateItem(a, 'apps', i));
+
+  return config;
+}
+
 // ─── IPC Handlers ──────────────────────────────────────────────────
-// Each handler corresponds to a specific onboarding action.
-// The renderer calls these through the preload bridge.
 
 // Run an arbitrary shell command and return the result.
 ipcMain.handle('shell:run', async (_event, command) => {
   return runCommand(command);
 });
 
-// Check if a tool is installed by running `which <tool>` and optionally a version command.
-ipcMain.handle('tool:check', async (_event, toolId) => {
-  const checks = {
-    'xcode-cli': { which: 'xcode-select', version: 'xcode-select -p >/dev/null 2>&1 && echo "installed" || echo ""' },
-    homebrew: { which: 'brew', version: 'brew --version | head -1' },
-    git: { which: 'git', version: 'git --version' },
-    node: { which: 'node', version: 'node --version' },
-    npm: { which: 'npm', version: 'npm --version' },
-    python: { which: 'python3', version: 'python3 --version' },
-    claude: { which: 'claude', version: 'claude --version 2>/dev/null || echo "installed"' },
-    bun: { which: 'bun', version: 'bun --version' },
-    gh: { which: 'gh', version: 'gh --version | head -1' },
-    'cursor-cli': { which: 'cursor', version: 'cursor --version 2>/dev/null || echo "installed"' },
-  };
-
-  const check = checks[toolId];
-  if (!check) return { installed: false, version: null };
-
-  const whichResult = await runCommand(`which ${check.which}`);
-  if (!whichResult.succeeded) {
-    return { installed: false, version: null, path: null };
-  }
-
-  const versionResult = await runCommand(check.version);
-  return {
-    installed: true,
-    version: versionResult.stdout || versionResult.stderr || 'unknown',
-    path: whichResult.stdout,
-  };
-});
-
 // Open a URL in the user's default browser.
 ipcMain.handle('shell:openExternal', async (_event, url) => {
   await shell.openExternal(url);
-});
-
-// Check if a directory exists.
-ipcMain.handle('fs:dirExists', async (_event, dirPath) => {
-  const resolved = dirPath.replace(/^~/, os.homedir());
-  return fs.existsSync(resolved) && fs.statSync(resolved).isDirectory();
-});
-
-// Create a directory (recursive).
-ipcMain.handle('fs:mkdir', async (_event, dirPath) => {
-  const resolved = dirPath.replace(/^~/, os.homedir());
-  try {
-    fs.mkdirSync(resolved, { recursive: true });
-    return { success: true, path: resolved };
-  } catch (err) {
-    return { success: false, error: err.message };
-  }
 });
 
 // Get home directory.
@@ -198,4 +195,43 @@ ipcMain.handle('shell:runStreaming', async (event, command) => {
       });
     });
   });
+});
+
+// ─── Config Loading ────────────────────────────────────────────────
+
+// Load config from a local file
+ipcMain.handle('config:loadFile', async (_event, filePath) => {
+  try {
+    const content = fs.readFileSync(filePath, 'utf8');
+    const config = yaml.load(content);
+    return validateConfig(config);
+  } catch (err) {
+    return { error: err.message };
+  }
+});
+
+// Load config from a URL
+ipcMain.handle('config:loadURL', async (_event, url) => {
+  try {
+    const response = await fetch(url);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    const content = await response.text();
+    const config = yaml.load(content);
+    return validateConfig(config);
+  } catch (err) {
+    return { error: err.message };
+  }
+});
+
+// Load the bundled default config
+ipcMain.handle('config:loadBundled', async () => {
+  try {
+    const filePath = path.join(__dirname, 'default.onboard');
+    const content = fs.readFileSync(filePath, 'utf8');
+    return yaml.load(content); // Bundled config assumed valid
+  } catch (err) {
+    return { error: err.message };
+  }
 });
