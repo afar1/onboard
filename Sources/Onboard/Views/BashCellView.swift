@@ -6,9 +6,9 @@ struct BashCellView: View {
     @State private var isExpanded = true
 
     var body: some View {
-        VStack(alignment: .leading, spacing: 10) {
+        VStack(alignment: .leading, spacing: Theme.innerSpacing) {
             // Header row: chevron + title + status badge
-            HStack(spacing: 8) {
+            HStack(spacing: Theme.tightSpacing) {
                 Image(systemName: "chevron.right")
                     .font(.caption.bold())
                     .foregroundStyle(.secondary)
@@ -39,15 +39,15 @@ struct BashCellView: View {
 
             if isExpanded {
                 // Command row: code + copy + run/status
-                HStack(spacing: 8) {
+                HStack(spacing: Theme.tightSpacing) {
                     Text(viewModel.definition.command)
-                        .font(.system(size: 14, weight: .regular, design: .monospaced))
+                        .font(Theme.codeFont)
                         .lineLimit(nil)
-                        .padding(10)
+                        .padding(Theme.innerSpacing)
                         .padding(.trailing, 28)
                         .frame(maxWidth: .infinity, minHeight: 40, alignment: .leading)
-                        .background(.fill.quaternary)
-                        .clipShape(RoundedRectangle(cornerRadius: 6))
+                        .background(Theme.codeBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.codeCornerRadius))
                         .overlay(alignment: .trailing) {
                             Button {
                                 NSPasteboard.general.clearContents()
@@ -76,15 +76,15 @@ struct BashCellView: View {
                 case .failed(let message):
                     Text(message)
                         .font(.callout)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Theme.errorForeground)
                 default:
                     EmptyView()
                 }
             }
         }
         .padding()
-        .background(.fill.quinary)
-        .clipShape(RoundedRectangle(cornerRadius: 12))
+        .background(Theme.cardBackground)
+        .clipShape(RoundedRectangle(cornerRadius: Theme.cardCornerRadius))
     }
 
     @ViewBuilder
@@ -97,11 +97,11 @@ struct BashCellView: View {
                 .controlSize(.small)
         case .completed(let result):
             Image(systemName: result.succeeded ? "checkmark.circle.fill" : "xmark.circle.fill")
-                .foregroundStyle(result.succeeded ? .green : .red)
+                .foregroundStyle(result.succeeded ? Theme.successColor : Theme.errorForeground)
                 .font(.body)
         case .failed:
             Image(systemName: "xmark.circle.fill")
-                .foregroundStyle(.red)
+                .foregroundStyle(Theme.errorForeground)
                 .font(.body)
         }
     }
@@ -116,17 +116,17 @@ struct BashCellView: View {
                 Text("Run")
             }
             .buttonStyle(.borderedProminent)
-            .clipShape(RoundedRectangle(cornerRadius: 6))
+            .clipShape(RoundedRectangle(cornerRadius: Theme.codeCornerRadius))
         case .running:
             ProgressView()
                 .controlSize(.small)
         case .completed(let result):
             Image(systemName: result.succeeded ? "checkmark.circle.fill" : "xmark.circle.fill")
-                .foregroundStyle(result.succeeded ? .green : .red)
+                .foregroundStyle(result.succeeded ? Theme.successColor : Theme.errorForeground)
                 .font(.title2)
         case .failed:
             Image(systemName: "xmark.circle.fill")
-                .foregroundStyle(.red)
+                .foregroundStyle(Theme.errorForeground)
                 .font(.title2)
         }
     }

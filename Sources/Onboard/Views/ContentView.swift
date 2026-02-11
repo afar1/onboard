@@ -8,7 +8,7 @@ struct ContentView: View {
 
     var body: some View {
         ScrollView {
-            VStack(alignment: .leading, spacing: 16) {
+            VStack(alignment: .leading, spacing: Theme.cardSpacing) {
                 // Header
                 VStack(alignment: .leading, spacing: 4) {
                     Text(projectName)
@@ -23,18 +23,18 @@ struct ContentView: View {
 
                 if let error = errorMessage {
                     Text(error)
-                        .foregroundStyle(.red)
+                        .foregroundStyle(Theme.errorForeground)
                         .padding()
                         .frame(maxWidth: .infinity, alignment: .leading)
-                        .background(.red.opacity(0.1))
-                        .clipShape(RoundedRectangle(cornerRadius: 8))
+                        .background(Theme.errorBackground)
+                        .clipShape(RoundedRectangle(cornerRadius: Theme.codeCornerRadius))
                 }
 
                 ForEach(cellViewModels) { vm in
                     BashCellView(viewModel: vm)
                 }
             }
-            .padding(24)
+            .padding(Theme.pagePadding)
         }
         .frame(minWidth: 500, minHeight: 400)
         .task {

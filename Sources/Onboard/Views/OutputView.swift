@@ -6,25 +6,25 @@ struct OutputView: View {
 
     var body: some View {
         DisclosureGroup("Output", isExpanded: $isExpanded) {
-            VStack(alignment: .leading, spacing: 8) {
+            VStack(alignment: .leading, spacing: Theme.tightSpacing) {
                 if !result.stdout.isEmpty {
                     Text("stdout")
                         .font(.callout)
                         .foregroundStyle(.secondary)
                     ScrollView(.horizontal, showsIndicators: false) {
                         Text(result.stdout)
-                            .font(.system(size: 13, weight: .regular, design: .monospaced))
+                            .font(Theme.codeFont)
                             .textSelection(.enabled)
                     }
                 }
                 if !result.stderr.isEmpty {
                     Text("stderr")
                         .font(.callout)
-                        .foregroundStyle(.red.opacity(0.8))
+                        .foregroundStyle(Theme.stderrLabel)
                     ScrollView(.horizontal, showsIndicators: false) {
                         Text(result.stderr)
-                            .font(.system(size: 13, weight: .regular, design: .monospaced))
-                            .foregroundStyle(.red.opacity(0.9))
+                            .font(Theme.codeFont)
+                            .foregroundStyle(Theme.stderrText)
                             .textSelection(.enabled)
                     }
                 }
