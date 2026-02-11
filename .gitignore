@@ -6,3 +6,8 @@ xcuserdata/
 DerivedData/
 .claude/
 CLAUDE.md
+
+# Electron
+electron/node_modules/
+electron/dist/
+electron/out/

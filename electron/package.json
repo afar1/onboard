@@ -1,0 +1,15 @@
+{
+  "name": "onboard",
+  "version": "1.0.0",
+  "description": "Developer onboarding — get your machine ready to build.",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dev": "electron . --dev"
+  },
+  "author": "Field Theory",
+  "license": "MIT",
+  "devDependencies": {
+    "electron": "^33.0.0"
+  }
+}

@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="Content-Security-Policy" content="default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'">
+  <title>Onboard</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+<div id="app">
+
+  <!-- Draggable title bar region (macOS hidden inset style) -->
+  <div class="drag-region">
+    <span class="title-text">Onboard</span>
+  </div>
+
+  <!-- Tab navigation -->
+  <div class="tab-bar">
+    <button class="tab-btn active" data-tab="dependencies">
+      Dependencies
+      <span class="tab-badge pending" id="deps-badge">—</span>
+    </button>
+    <button class="tab-btn" data-tab="accounts">
+      Accounts
+    </button>
+    <button class="tab-btn" data-tab="workspace">
+      Workspace
+    </button>
+  </div>
+
+  <!-- Scrollable content area -->
+  <div class="tab-content">
+
+    <!-- ═══════ Dependencies Tab ═══════ -->
+    <div class="tab-panel active" id="panel-dependencies">
+      <div class="section-header">
+        <h2>System Dependencies</h2>
+        <p>We'll check your machine for the tools you need to start building. Install anything that's missing — order matters, so we'll go top to bottom.</p>
+      </div>
+
+      <!-- Progress bar across all deps -->
+      <div class="progress-bar">
+        <div class="progress-track">
+          <div class="progress-fill" id="deps-progress" style="width: 0%"></div>
+        </div>
+        <span class="progress-label" id="deps-progress-label">Checking...</span>
+      </div>
+
+      <!-- Tool cards get injected here by renderer.js -->
+      <div id="tools-container"></div>
+    </div>
+
+    <!-- ═══════ Accounts Tab ═══════ -->
+    <div class="tab-panel" id="panel-accounts">
+      <div class="section-header">
+        <h2>Accounts & Logins</h2>
+        <p>You'll need accounts with these services to push code and use AI-assisted development tools.</p>
+      </div>
+
+      <!-- GitHub -->
+      <div class="account-card">
+        <h3>🔑 GitHub</h3>
+        <p>GitHub is where your code lives. You'll push projects, collaborate with others, and clone repositories from here. You need an account and you need to be logged in via the CLI so <code>git push</code> works.</p>
+        <div class="step-list" id="github-steps">
+          <div class="step-item">
+            <span class="step-dot" id="gh-step-account">1</span>
+            <span>Create a GitHub account (if you don't have one)</span>
+          </div>
+          <div class="step-item">
+            <span class="step-dot" id="gh-step-cli">2</span>
+            <span>Install GitHub CLI (via Homebrew)</span>
+          </div>
+          <div class="step-item">
+            <span class="step-dot" id="gh-step-login">3</span>
+            <span>Authenticate with <code>gh auth login</code></span>
+          </div>
+        </div>
+        <div class="account-actions">
+          <button class="btn" onclick="openLink('https://github.com/signup')">Create Account ↗</button>
+          <button class="btn" onclick="installGhCli()">Install CLI</button>
+          <button class="btn btn-primary" onclick="ghAuthLogin()">Authenticate</button>
+        </div>
+        <div class="terminal-output" id="gh-output" style="display: none;"></div>
+      </div>
+
+      <!-- Claude -->
+      <div class="account-card">
+        <h3>🤖 Claude (Anthropic)</h3>
+        <p>Claude is the AI that powers your coding assistant. When you run tools like the Claude CLI or use it inside your editor, it needs an active account. You'll sign up at Anthropic's site and then authenticate the CLI.</p>
+        <div class="step-list">
+          <div class="step-item">
+            <span class="step-dot" id="claude-step-account">1</span>
+            <span>Create a Claude account at Anthropic</span>
+          </div>
+          <div class="step-item">
+            <span class="step-dot" id="claude-step-cli">2</span>
+            <span>Install Claude CLI (from Dependencies tab)</span>
+          </div>
+        </div>
+        <div class="account-actions">
+          <button class="btn" onclick="openLink('https://claude.ai/signup')">Create Claude Account ↗</button>
+          <button class="btn" onclick="openLink('https://console.anthropic.com/')">Anthropic Console ↗</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ═══════ Workspace Tab ═══════ -->
+    <div class="tab-panel" id="panel-workspace">
+      <div class="section-header">
+        <h2>Your Workspace</h2>
+        <p>Let's set up a home for your projects. You'll create a folder, clone your first repo, and run it.</p>
+      </div>
+
+      <!-- Step 1: Create dev folder -->
+      <div class="tool-card">
+        <div class="tool-card-header">
+          <div class="tool-icon" style="background: var(--blue-dim); color: var(--blue);">📁</div>
+          <div class="tool-info">
+            <div class="tool-name">Create your projects folder</div>
+            <div class="tool-desc">This is where all your code projects will live. Pick a name you like — it'll be created in your home directory.</div>
+          </div>
+        </div>
+        <div class="tool-details">
+          <div class="input-group">
+            <label>Folder name</label>
+            <div class="input-row">
+              <input type="text" class="text-input" id="dev-folder-input" placeholder="Dev">
+              <button class="btn btn-primary" id="create-folder-btn" onclick="createDevFolder()">Create</button>
+            </div>
+            <div class="suggestions">
+              <span class="suggestion-pill" onclick="suggestFolder('Dev')">~/Dev</span>
+              <span class="suggestion-pill" onclick="suggestFolder('Developer')">~/Developer</span>
+              <span class="suggestion-pill" onclick="suggestFolder('Projects')">~/Projects</span>
+              <span class="suggestion-pill" onclick="suggestFolder('code')">~/code</span>
+            </div>
+          </div>
+          <div class="terminal-output" id="folder-output" style="display: none;"></div>
+        </div>
+      </div>
+
+      <!-- Step 2: Clone a project -->
+      <div class="clone-section" id="clone-section">
+        <h3>Clone your first project</h3>
+        <p>Let's pull down a real project so you have something to explore and run. We'll clone it right into your new projects folder.</p>
+
+        <div class="input-group">
+          <label>Repository URL</label>
+          <div class="input-row">
+            <input type="text" class="text-input" id="clone-url-input" value="https://github.com/vercel/next.js.git" placeholder="https://github.com/user/repo.git">
+            <button class="btn btn-primary" id="clone-btn" onclick="cloneProject()">Clone</button>
+          </div>
+          <div class="suggestions">
+            <span class="suggestion-pill" onclick="suggestRepo('https://github.com/vercel/next.js.git')">next.js</span>
+            <span class="suggestion-pill" onclick="suggestRepo('https://github.com/t3-oss/create-t3-app.git')">create-t3-app</span>
+            <span class="suggestion-pill" onclick="suggestRepo('https://github.com/shadcn-ui/ui.git')">shadcn/ui</span>
+          </div>
+        </div>
+        <div class="terminal-output" id="clone-output" style="display: none;"></div>
+      </div>
+
+      <!-- Step 3: Run it -->
+      <div class="clone-section" id="run-section" style="margin-top: 12px;">
+        <h3>Start the project</h3>
+        <p>Install dependencies and fire it up. This runs <code>npm install</code> followed by <code>npm start</code> (or <code>npm run dev</code>) in your cloned project.</p>
+        <div class="account-actions">
+          <button class="btn btn-primary" id="run-btn" onclick="runProject()" disabled>Install & Run</button>
+        </div>
+        <div class="terminal-output" id="run-output" style="display: none;"></div>
+      </div>
+
+      <!-- Success state -->
+      <div class="success-banner" id="workspace-success" style="display: none;">
+        <h3>You're all set!</h3>
+        <p>Your machine is configured, your workspace is ready, and you've got a project running. Go build something.</p>
+      </div>
+    </div>
+
+  </div><!-- end tab-content -->
+
+  <!-- Bottom action bar -->
+  <div class="action-bar">
+    <span class="action-bar-text" id="status-text">Starting up...</span>
+    <button class="btn btn-primary" id="check-all-btn" onclick="checkAllDependencies()">Check All</button>
+  </div>
+
+</div>
+
+<script src="renderer.js"></script>
+</body>
+</html>
