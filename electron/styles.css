@@ -599,3 +599,229 @@ html, body {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-muted);
 }
+
+/* ─── Shimmer Animation ──────────────────────────────────────────── */
+
+@keyframes shimmer {
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+
+/* ─── Update Footer ──────────────────────────────────────────────── */
+
+.update-section {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 11px;
+}
+
+.update-indicator {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  overflow: hidden;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: var(--bg-tertiary);
+}
+
+.update-indicator .shimmer-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.15) 50%, transparent 100%);
+  animation: shimmer 3.7s ease-in-out infinite;
+  pointer-events: none;
+}
+
+[data-theme="light"] .update-indicator .shimmer-overlay {
+  background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.6) 50%, transparent 100%);
+}
+
+.update-text {
+  font-size: 10px;
+  color: var(--text-primary);
+}
+
+.update-text.error {
+  color: var(--red);
+}
+
+.update-btn {
+  padding: 2px 6px;
+  font-size: 10px;
+  border-radius: 4px;
+  border: none;
+  cursor: pointer;
+  transition: all 0.1s ease;
+}
+
+.update-btn:active {
+  transform: scale(0.95);
+  opacity: 0.8;
+}
+
+.update-btn-secondary {
+  background: transparent;
+  color: var(--text-secondary);
+  opacity: 0.7;
+}
+
+.update-btn-primary {
+  background: var(--blue);
+  color: #fff;
+}
+
+.version-hover {
+  cursor: pointer;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-style: italic;
+  background: none;
+  border: none;
+  padding: 0;
+}
+
+.version-text {
+  color: var(--text-muted);
+  font-size: 10px;
+  font-style: italic;
+}
+
+.version-text.uptodate {
+  color: var(--green);
+}
+
+/* ─── Release Notes Popup ────────────────────────────────────────── */
+
+.release-notes-popup {
+  position: fixed;
+  bottom: 52px;
+  right: 8px;
+  width: 280px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.4);
+  padding: 16px;
+  z-index: 10000;
+  transition: opacity 0.3s ease, transform 0.3s ease;
+}
+
+[data-theme="light"] .release-notes-popup {
+  box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+}
+
+.release-notes-popup.closing {
+  opacity: 0;
+  transform: translateY(10px);
+}
+
+.release-notes-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: 12px;
+}
+
+.release-notes-meta {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.release-notes-version {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.release-notes-version .version {
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.release-notes-version .label {
+  font-size: 11px;
+  color: var(--text-secondary);
+}
+
+.release-notes-version .label.latest {
+  color: var(--green);
+}
+
+.release-notes-date {
+  font-size: 10px;
+  color: var(--text-muted);
+}
+
+.release-notes-close {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+}
+
+.release-notes-close:hover {
+  background: var(--bg-hover);
+}
+
+.release-notes-list {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.release-notes-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  margin-bottom: 8px;
+  font-size: 12px;
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+.release-notes-list li:last-child {
+  margin-bottom: 0;
+}
+
+.release-notes-list .bullet {
+  color: var(--blue);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.release-notes-btn {
+  width: 18px;
+  height: 18px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  cursor: pointer;
+  color: var(--text-secondary);
+}
+
+.release-notes-btn:hover {
+  background: var(--bg-hover);
+}
+
+.release-notes-btn.active {
+  background: var(--blue);
+  border-color: var(--blue);
+  color: #fff;
+}

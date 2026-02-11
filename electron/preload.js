@@ -22,6 +22,50 @@ ipcRenderer.on('config:fileOpened', (_event, filePath) => {
   if (fileOpenedCallback) fileOpenedCallback(filePath);
 });
 
+// ─── Updater Event Callbacks ────────────────────────────────────────
+let updaterCallbacks = {
+  onCheckingForUpdate: null,
+  onUpdateAvailable: null,
+  onUpdateNotAvailable: null,
+  onDownloadProgress: null,
+  onUpdateDownloaded: null,
+  onError: null,
+};
+
+ipcRenderer.on('updater:checkingForUpdate', () => {
+  if (updaterCallbacks.onCheckingForUpdate) updaterCallbacks.onCheckingForUpdate();
+});
+ipcRenderer.on('updater:updateAvailable', (_event, info) => {
+  if (updaterCallbacks.onUpdateAvailable) updaterCallbacks.onUpdateAvailable(info);
+});
+ipcRenderer.on('updater:updateNotAvailable', () => {
+  if (updaterCallbacks.onUpdateNotAvailable) updaterCallbacks.onUpdateNotAvailable();
+});
+ipcRenderer.on('updater:downloadProgress', (_event, percent) => {
+  if (updaterCallbacks.onDownloadProgress) updaterCallbacks.onDownloadProgress(percent);
+});
+ipcRenderer.on('updater:updateDownloaded', (_event, info) => {
+  if (updaterCallbacks.onUpdateDownloaded) updaterCallbacks.onUpdateDownloaded(info);
+});
+ipcRenderer.on('updater:error', (_event, error) => {
+  if (updaterCallbacks.onError) updaterCallbacks.onError(error);
+});
+
+contextBridge.exposeInMainWorld('updaterAPI', {
+  getVersion: () => ipcRenderer.invoke('updater:getVersion'),
+  getStatus: () => ipcRenderer.invoke('updater:getStatus'),
+  checkForUpdates: () => ipcRenderer.invoke('updater:checkForUpdates'),
+  downloadUpdate: () => ipcRenderer.invoke('updater:downloadUpdate'),
+  installUpdate: () => ipcRenderer.invoke('updater:installUpdate'),
+  dismissUpdate: () => ipcRenderer.invoke('updater:dismissUpdate'),
+  onCheckingForUpdate: (cb) => { updaterCallbacks.onCheckingForUpdate = cb; return () => { updaterCallbacks.onCheckingForUpdate = null; }; },
+  onUpdateAvailable: (cb) => { updaterCallbacks.onUpdateAvailable = cb; return () => { updaterCallbacks.onUpdateAvailable = null; }; },
+  onUpdateNotAvailable: (cb) => { updaterCallbacks.onUpdateNotAvailable = cb; return () => { updaterCallbacks.onUpdateNotAvailable = null; }; },
+  onDownloadProgress: (cb) => { updaterCallbacks.onDownloadProgress = cb; return () => { updaterCallbacks.onDownloadProgress = null; }; },
+  onUpdateDownloaded: (cb) => { updaterCallbacks.onUpdateDownloaded = cb; return () => { updaterCallbacks.onUpdateDownloaded = null; }; },
+  onError: (cb) => { updaterCallbacks.onError = cb; return () => { updaterCallbacks.onError = null; }; },
+});
+
 contextBridge.exposeInMainWorld('onboard', {
   // Run a shell command and get back { stdout, stderr, exitCode, succeeded }.
   run: (command) => ipcRenderer.invoke('shell:run', command),

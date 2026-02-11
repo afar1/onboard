@@ -1,12 +1,37 @@
 // renderer.js — UI logic for the Onboard app.
 // Loads configuration from .onboard YAML files and renders tools/apps.
 
+// ─── Release Notes Data ────────────────────────────────────────────
+
+const RELEASE_NOTES = {
+  '0.1.0': [
+    'Initial release with auto-update support',
+    'Load configs from files, URLs, or defaults',
+    'Install Homebrew, Git, Node.js, Python, and more',
+  ],
+};
+
+const RELEASE_DATES = {
+  '0.1.0': 'Feb 11 2026',
+};
+
+function hasReleaseNotes(version) {
+  return version in RELEASE_NOTES && RELEASE_NOTES[version].length > 0;
+}
+
 // ─── State ─────────────────────────────────────────────────────────
 
 let currentConfig = null;
 let toolStates = {};   // { [id]: { status, installed } }
 let appStates = {};    // { [id]: { status, installed } }
 let homeDir = '';
+
+// Update state
+let appVersion = '0.0.0';
+let updateStatus = 'idle';
+let updateError = null;
+let versionHovered = false;
+let showReleaseNotes = false;
 
 // ─── Config Loading ────────────────────────────────────────────────
 
@@ -416,6 +441,7 @@ function initDragDrop() {
 async function init() {
   initTheme();
   initDragDrop();
+  initUpdater();
 
   homeDir = await window.onboard.homedir();
 
@@ -424,13 +450,128 @@ async function init() {
   if (lastConfig && lastConfig !== 'bundled' && lastConfig.length > 0) {
     const success = await loadConfig(lastConfig);
     if (!success) {
-      // Show empty state if last config failed to load
       showEmptyState();
     }
   } else {
-    // No saved config - show empty state
     showEmptyState();
   }
+}
+
+// ─── Update UI ──────────────────────────────────────────────────────
+
+function renderUpdateUI() {
+  const container = document.getElementById('update-section');
+  if (!container) return;
+
+  const giftIcon = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <polyline points="20 12 20 22 4 22 4 12"/><rect x="2" y="7" width="20" height="5"/><line x1="12" y1="22" x2="12" y2="7"/>
+    <path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/>
+  </svg>`;
+
+  const docIcon = `<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+    <line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/>
+  </svg>`;
+
+  let html = '';
+
+  if (updateStatus !== 'idle' && updateStatus !== 'uptodate') {
+    html = `<div class="update-indicator">${giftIcon}
+      <span class="update-text ${updateStatus === 'error' ? 'error' : ''}">
+        ${updateStatus === 'checking' ? 'Checking...' : updateStatus === 'downloading' ? 'Downloading...' :
+          updateStatus === 'ready' ? 'Update ready' : updateStatus === 'error' ? 'Update failed' : 'Update available'}
+      </span><div class="shimmer-overlay"></div></div>`;
+
+    if (updateStatus !== 'checking' && updateStatus !== 'downloading' && updateStatus !== 'error') {
+      html += `<button class="update-btn update-btn-secondary" onclick="dismissUpdate()">Later</button>
+        <button class="update-btn update-btn-primary" onclick="${updateStatus === 'ready' ? 'installUpdate()' : 'downloadUpdate()'}">
+          ${updateStatus === 'ready' ? 'Install' : 'Update'}</button>`;
+    }
+    if (updateStatus === 'error') {
+      html += `<button class="update-btn update-btn-secondary" onclick="dismissUpdate()">Dismiss</button>`;
+    }
+  } else {
+    if (versionHovered) {
+      html = updateStatus === 'uptodate'
+        ? `<span class="version-text uptodate">Up to date ✓</span>`
+        : `<button class="version-hover" onclick="checkForUpdates()">Check for updates</button>`;
+    } else {
+      html = `<span class="version-text ${updateStatus === 'uptodate' ? 'uptodate' : ''}"
+        onmouseenter="setVersionHovered(true)" onmouseleave="setVersionHovered(false)">
+        ${updateStatus === 'uptodate' ? 'Up to date ✓' : 'v' + appVersion}</span>`;
+    }
+    if (hasReleaseNotes(appVersion)) {
+      html += `<button class="release-notes-btn ${showReleaseNotes ? 'active' : ''}" onclick="toggleReleaseNotes()" title="Release notes">${docIcon}</button>`;
+    }
+  }
+  container.innerHTML = html;
+}
+
+function setVersionHovered(hovered) { versionHovered = hovered; renderUpdateUI(); }
+function checkForUpdates() { if (window.updaterAPI) window.updaterAPI.checkForUpdates(); }
+function downloadUpdate() { if (window.updaterAPI) window.updaterAPI.downloadUpdate(); }
+function installUpdate() { if (window.updaterAPI) window.updaterAPI.installUpdate(); }
+function dismissUpdate() {
+  if (window.updaterAPI) window.updaterAPI.dismissUpdate();
+  updateStatus = 'idle'; updateError = null; renderUpdateUI();
+}
+
+function toggleReleaseNotes() {
+  if (showReleaseNotes) hideReleaseNotes();
+  else showReleaseNotesPopup(true);
+}
+
+function showReleaseNotesPopup(isLatestMode = false) {
+  const popup = document.getElementById('release-notes-popup');
+  if (!popup || !hasReleaseNotes(appVersion)) return;
+
+  document.getElementById('release-notes-version').textContent = 'v' + appVersion;
+  const labelEl = document.getElementById('release-notes-label');
+  labelEl.textContent = isLatestMode ? 'Latest' : "What's new";
+  labelEl.className = 'label' + (isLatestMode ? ' latest' : '');
+  document.getElementById('release-notes-date').textContent = RELEASE_DATES[appVersion] ? 'Released ' + RELEASE_DATES[appVersion] : '';
+
+  const notes = RELEASE_NOTES[appVersion] || [];
+  document.getElementById('release-notes-list').innerHTML = notes.map(n => `<li><span class="bullet">•</span><span>${n}</span></li>`).join('');
+
+  popup.style.display = 'block';
+  popup.classList.remove('closing');
+  showReleaseNotes = true;
+  renderUpdateUI();
+}
+
+function hideReleaseNotes() {
+  const popup = document.getElementById('release-notes-popup');
+  if (!popup) return;
+  popup.classList.add('closing');
+  setTimeout(() => { popup.style.display = 'none'; popup.classList.remove('closing'); }, 300);
+  showReleaseNotes = false;
+  renderUpdateUI();
+}
+
+function initUpdater() {
+  if (!window.updaterAPI) return;
+
+  window.updaterAPI.getVersion().then(v => { appVersion = v || '0.0.0'; renderUpdateUI(); checkForNewVersionNotes(); });
+  window.updaterAPI.getStatus().then(s => { if (s) { updateStatus = s.status; renderUpdateUI(); } });
+
+  window.updaterAPI.onCheckingForUpdate(() => { updateStatus = 'checking'; renderUpdateUI(); });
+  window.updaterAPI.onUpdateAvailable(() => { updateStatus = 'available'; renderUpdateUI(); });
+  window.updaterAPI.onUpdateNotAvailable(() => {
+    updateStatus = 'uptodate'; renderUpdateUI();
+    setTimeout(() => { if (updateStatus === 'uptodate') { updateStatus = 'idle'; renderUpdateUI(); } }, 3000);
+  });
+  window.updaterAPI.onDownloadProgress(() => { updateStatus = 'downloading'; renderUpdateUI(); });
+  window.updaterAPI.onUpdateDownloaded(() => { updateStatus = 'ready'; renderUpdateUI(); });
+  window.updaterAPI.onError((err) => { updateStatus = 'error'; updateError = err; renderUpdateUI(); });
+}
+
+function checkForNewVersionNotes() {
+  const lastSeen = localStorage.getItem('lastSeenReleaseNotesVersion');
+  if (lastSeen && lastSeen !== appVersion && hasReleaseNotes(appVersion)) {
+    showReleaseNotesPopup(false);
+  }
+  localStorage.setItem('lastSeenReleaseNotesVersion', appVersion);
 }
 
 // Start when DOM is ready

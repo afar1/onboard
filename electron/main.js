@@ -8,6 +8,15 @@ const { exec, spawn } = require('child_process');
 const fs = require('fs');
 const os = require('os');
 const yaml = require('js-yaml');
+const { autoUpdater } = require('electron-updater');
+
+// Configure auto-updater
+autoUpdater.autoDownload = false;
+autoUpdater.allowPrerelease = true;
+autoUpdater.setFeedURL({ provider: 'github', owner: 'afar1', repo: 'onboard-releases' });
+
+// Track pending update state
+let pendingUpdateInfo = null;
 
 // ─── Window Setup ──────────────────────────────────────────────────
 
@@ -233,5 +242,64 @@ ipcMain.handle('config:loadBundled', async () => {
     return yaml.load(content); // Bundled config assumed valid
   } catch (err) {
     return { error: err.message };
+  }
+});
+
+// ─── Auto-Updater ───────────────────────────────────────────────────
+
+function broadcastToAllWindows(channel, ...args) {
+  BrowserWindow.getAllWindows().forEach((window) => {
+    window.webContents.send(channel, ...args);
+  });
+}
+
+autoUpdater.on('checking-for-update', () => {
+  broadcastToAllWindows('updater:checkingForUpdate');
+});
+
+autoUpdater.on('update-available', (info) => {
+  pendingUpdateInfo = { status: 'available', version: info.version };
+  broadcastToAllWindows('updater:updateAvailable', { version: info.version });
+});
+
+autoUpdater.on('update-not-available', () => {
+  pendingUpdateInfo = null;
+  broadcastToAllWindows('updater:updateNotAvailable');
+});
+
+autoUpdater.on('error', (err) => {
+  if (err.message?.includes('net::') || err.message?.includes('ENOTFOUND')) {
+    return;
+  }
+  broadcastToAllWindows('updater:error', err.message);
+});
+
+autoUpdater.on('download-progress', (progressObj) => {
+  const percent = Math.round(progressObj.percent);
+  broadcastToAllWindows('updater:downloadProgress', percent);
+});
+
+autoUpdater.on('update-downloaded', (info) => {
+  pendingUpdateInfo = { status: 'ready', version: info.version };
+  broadcastToAllWindows('updater:updateDownloaded', { version: info.version });
+});
+
+ipcMain.handle('updater:getVersion', () => app.getVersion());
+ipcMain.handle('updater:getStatus', () => pendingUpdateInfo);
+ipcMain.handle('updater:checkForUpdates', () => {
+  if (app.isPackaged) {
+    autoUpdater.checkForUpdates();
+  } else {
+    broadcastToAllWindows('updater:updateNotAvailable');
+  }
+});
+ipcMain.handle('updater:downloadUpdate', () => autoUpdater.downloadUpdate());
+ipcMain.handle('updater:installUpdate', () => autoUpdater.quitAndInstall());
+ipcMain.handle('updater:dismissUpdate', () => { pendingUpdateInfo = null; });
+
+app.whenReady().then(() => {
+  if (app.isPackaged) {
+    setTimeout(() => autoUpdater.checkForUpdates(), 5000);
+    setInterval(() => autoUpdater.checkForUpdates(), 30 * 60 * 1000);
   }
 });

@@ -77,7 +77,28 @@
   <!-- Bottom action bar -->
   <div class="action-bar">
     <span class="action-bar-text" id="status-text">Starting up...</span>
+    <div class="update-section" id="update-section"></div>
     <button class="btn btn-primary" id="check-all-btn" onclick="checkAllTools()">Check All</button>
+  </div>
+
+  <!-- Release notes popup -->
+  <div class="release-notes-popup" id="release-notes-popup" style="display: none;">
+    <div class="release-notes-header">
+      <div class="release-notes-meta">
+        <div class="release-notes-version">
+          <span class="version" id="release-notes-version">v0.1.0</span>
+          <span class="label" id="release-notes-label">What's new</span>
+        </div>
+        <span class="release-notes-date" id="release-notes-date"></span>
+      </div>
+      <button class="release-notes-close" onclick="hideReleaseNotes()" title="Dismiss">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <line x1="18" y1="6" x2="6" y2="18" />
+          <line x1="6" y1="6" x2="18" y2="18" />
+        </svg>
+      </button>
+    </div>
+    <ul class="release-notes-list" id="release-notes-list"></ul>
   </div>
 
   <!-- Error toast -->

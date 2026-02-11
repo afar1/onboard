@@ -11,3 +11,4 @@ CLAUDE.md
 electron/node_modules/
 electron/dist/
 electron/out/
+electron/.env.local

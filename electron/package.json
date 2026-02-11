@@ -1,31 +1,43 @@
 {
   "name": "onboard-computer",
   "productName": "onboard.computer",
-  "version": "1.0.0",
+  "version": "0.1.0",
   "description": "Developer onboarding — get your machine ready to build.",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
     "dev": "electron . --dev",
     "build": "electron-builder --mac",
-    "build:dmg": "electron-builder --mac dmg"
+    "build:dmg": "electron-builder --mac dmg",
+    "package": "electron-builder --mac --publish never"
   },
   "author": "Field Theory",
   "license": "MIT",
   "dependencies": {
+    "electron-updater": "^6.3.9",
     "js-yaml": "^4.1.0"
   },
   "devDependencies": {
+    "@electron/notarize": "^2.5.0",
     "electron": "^33.0.0",
     "electron-builder": "^25.1.8"
   },
   "build": {
     "appId": "computer.onboard.app",
     "productName": "onboard.computer",
+    "afterSign": "scripts/notarize.js",
+    "publish": {
+      "provider": "github",
+      "owner": "afar1",
+      "repo": "onboard-releases"
+    },
     "mac": {
       "category": "public.app-category.developer-tools",
       "icon": "assets/icon.icns",
-      "target": ["dmg"]
+      "target": ["dmg", "zip"],
+      "hardenedRuntime": true,
+      "gatekeeperAssess": false,
+      "minimumSystemVersion": "13.0"
     },
     "dmg": {
       "title": "onboard.computer",
