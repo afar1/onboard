@@ -275,6 +275,11 @@ ipcMain.handle('shell:openPath', async (_event, filePath) => {
   return shell.openPath(filePath);
 });
 
+// Reveal a path in Finder
+ipcMain.handle('shell:showItemInFolder', async (_event, filePath) => {
+  shell.showItemInFolder(filePath);
+});
+
 // ─── Config Loading ────────────────────────────────────────────────
 
 // Load config from a local file
@@ -303,12 +308,13 @@ ipcMain.handle('config:loadURL', async (_event, url) => {
   }
 });
 
-// Load the bundled default config
-ipcMain.handle('config:loadBundled', async () => {
+// Load a bundled config by name (defaults to 'default')
+ipcMain.handle('config:loadBundled', async (_event, name) => {
   try {
+    const filename = (name || 'default') + '.onboard';
     // In development, load from examples/; in production, from Resources
-    const devPath = path.join(__dirname, 'examples', 'default.onboard');
-    const prodPath = path.join(process.resourcesPath, 'default.onboard');
+    const devPath = path.join(__dirname, 'examples', filename);
+    const prodPath = path.join(process.resourcesPath, filename);
     const filePath = fs.existsSync(devPath) ? devPath : prodPath;
     const content = fs.readFileSync(filePath, 'utf8');
     return yaml.load(content); // Bundled config assumed valid

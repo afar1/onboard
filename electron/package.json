@@ -19,7 +19,7 @@
   },
   "devDependencies": {
     "@electron/notarize": "^2.5.0",
-    "electron": "^33.0.0",
+    "electron": "^33.4.11",
     "electron-builder": "^25.1.8"
   },
   "build": {
@@ -34,7 +34,10 @@
     "mac": {
       "category": "public.app-category.developer-tools",
       "icon": "assets/icon.icns",
-      "target": ["dmg", "zip"],
+      "target": [
+        "dmg",
+        "zip"
+      ],
       "hardenedRuntime": true,
       "gatekeeperAssess": false,
       "minimumSystemVersion": "13.0"
@@ -43,11 +46,13 @@
       "title": "onboard.computer",
       "icon": "assets/icon.icns"
     },
-    "fileAssociations": [{
-      "ext": "onboard",
-      "name": "Onboard Configuration",
-      "role": "Editor"
-    }],
+    "fileAssociations": [
+      {
+        "ext": "onboard",
+        "name": "Onboard Configuration",
+        "role": "Editor"
+      }
+    ],
     "files": [
       "**/*",
       "!examples/**"

@@ -94,6 +94,9 @@ contextBridge.exposeInMainWorld('onboard', {
   // Open a path (app, file, or folder) with the default handler.
   openPath: (path) => ipcRenderer.invoke('shell:openPath', path),
 
+  // Reveal a path in Finder.
+  showInFinder: (path) => ipcRenderer.invoke('shell:showItemInFolder', path),
+
   // Set the callback that receives streaming output chunks.
   setStreamCallback: (callback) => {
     currentStreamCallback = callback;
@@ -112,8 +115,8 @@ contextBridge.exposeInMainWorld('onboard', {
   // Load config from a URL.
   loadConfigURL: (url) => ipcRenderer.invoke('config:loadURL', url),
 
-  // Load the bundled default config.
-  loadBundledConfig: () => ipcRenderer.invoke('config:loadBundled'),
+  // Load a bundled config by name (defaults to 'default').
+  loadBundledConfig: (name) => ipcRenderer.invoke('config:loadBundled', name),
 
   // Set callback for when a .onboard file is opened (double-click).
   onFileOpened: (callback) => {

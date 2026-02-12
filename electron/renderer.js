@@ -59,9 +59,10 @@ async function loadConfig(source) {
     if (source.startsWith('http://') || source.startsWith('https://')) {
       setStatus('Loading config from URL...');
       result = await window.onboard.loadConfigURL(source);
-    } else if (source === 'bundled') {
-      setStatus('Loading default config...');
-      result = await window.onboard.loadBundledConfig();
+    } else if (source === 'bundled' || source.startsWith('bundled:')) {
+      const name = source === 'bundled' ? undefined : source.slice('bundled:'.length);
+      setStatus('Loading config...');
+      result = await window.onboard.loadBundledConfig(name);
     } else {
       setStatus('Loading config file...');
       result = await window.onboard.loadConfigFile(source);
@@ -123,7 +124,7 @@ function resetConfig() {
 
 function formatPath(filePath) {
   if (!filePath) return '';
-  if (filePath === 'bundled') return 'Built-in config';
+  if (filePath === 'bundled' || filePath.startsWith('bundled:')) return 'Built-in config';
   if (filePath.startsWith('http://') || filePath.startsWith('https://')) return filePath;
   // Replace home directory with ~
   if (homeDir && filePath.startsWith(homeDir)) {
@@ -223,9 +224,9 @@ function renderAction(item, state, type, terminalInfo = null) {
       const showTerminal = terminalInfo && !terminalInfo.isActive && terminalInfo.hasOutput;
       return `<div class="app-actions">
         ${terminalBtn(terminalInfo?.id, showTerminal)}
-        <button class="btn btn-sm btn-uninstall" onclick="uninstallApp('${item.id}')" title="Uninstall">
+        <button class="btn btn-sm btn-uninstall" onclick="showAppInFinder('${item.id}')" title="Show in Finder">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z"/>
           </svg>
         </button>
         <button class="btn btn-sm btn-open" onclick="openApp('${item.id}')">Open</button>
@@ -310,7 +311,7 @@ function renderToolCards() {
           ${renderAction(tool, state, 'tool', terminalInfo)}
         </div>
       </div>
-      <div class="terminal-inline" id="terminal-${terminalId}" style="display: ${(isActive && hasOutput && !isPoppedOut) ? 'block' : 'none'};">
+      <div class="terminal-inline" id="terminal-${terminalId}" style="display: ${(hasOutput && !isPoppedOut) ? 'block' : 'none'};">
         <div class="terminal-header">
           <span class="terminal-last-line"></span>
           <div class="terminal-actions">
@@ -370,7 +371,7 @@ function renderAppCards() {
           ${renderAction(app, state, 'app', terminalInfo)}
         </div>
       </div>
-      <div class="terminal-inline" id="terminal-${terminalId}" style="display: ${(isActive && hasOutput && !isPoppedOut) ? 'block' : 'none'};">
+      <div class="terminal-inline" id="terminal-${terminalId}" style="display: ${(hasOutput && !isPoppedOut) ? 'block' : 'none'};">
         <div class="terminal-header">
           <span class="terminal-last-line"></span>
           <div class="terminal-actions">
@@ -829,6 +830,29 @@ async function openApp(appId) {
   await window.onboard.openPath(standardPath);
 }
 
+async function showAppInFinder(appId) {
+  const app = (currentConfig?.apps || []).find(a => a.id === appId);
+  if (!app) return;
+
+  const checkCmd = app.check || '';
+  const appPathMatch = checkCmd.match(/ls\s+(.+\.app)/);
+
+  if (appPathMatch) {
+    const paths = appPathMatch[1].split('||').map(p => p.trim().replace(/\\/g, ''));
+    for (const appPath of paths) {
+      const exists = await window.onboard.run(`ls "${appPath}"`);
+      if (exists.succeeded) {
+        await window.onboard.showInFinder(appPath);
+        return;
+      }
+    }
+  }
+
+  // Fallback: try standard Applications path
+  const standardPath = `/Applications/${app.name}.app`;
+  await window.onboard.showInFinder(standardPath);
+}
+
 function uninstallApp(appId) {
   const app = (currentConfig?.apps || []).find(a => a.id === appId);
   if (!app) return;
@@ -954,7 +978,7 @@ async function openFilePicker() {
 
 function initTerminalOutput(id) {
   if (!terminalOutputs[id]) {
-    terminalOutputs[id] = { lines: [], poppedOut: false, active: false };
+    terminalOutputs[id] = { lines: [], poppedOut: false, active: false, expanded: false };
   }
 }
 
@@ -990,20 +1014,27 @@ function updateTerminalDisplay(id) {
   const isActive = output?.active;
   const isPoppedOut = output?.poppedOut;
 
-  // Show/hide history button (visible when not active but has output)
+  // Hide history button — terminal inline is now always visible when there's output
   if (historyBtn) {
-    historyBtn.style.display = (!isActive && hasOutput) ? 'flex' : 'none';
+    historyBtn.style.display = 'none';
   }
 
   if (!el) return;
 
-  // Don't show inline if popped out or not active
-  if (!hasOutput || isPoppedOut || !isActive) {
+  // Show inline if there's output and not popped out
+  if (!hasOutput || isPoppedOut) {
     el.style.display = 'none';
     return;
   }
 
   el.style.display = 'block';
+
+  // Preserve expanded state across re-renders
+  if (output?.expanded) {
+    el.classList.add('expanded');
+  } else {
+    el.classList.remove('expanded');
+  }
 
   // Show last line for compact view
   const lastLine = output.lines[output.lines.length - 1];
@@ -1037,9 +1068,12 @@ function clearTerminalOutput(id) {
 }
 
 function toggleTerminalExpand(id) {
+  initTerminalOutput(id);
   const el = document.getElementById(`terminal-${id}`);
   if (!el) return;
+  terminalOutputs[id].expanded = !terminalOutputs[id].expanded;
   el.classList.toggle('expanded');
+  updateTerminalDisplay(id);
 }
 
 async function popOutTerminal(id) {
