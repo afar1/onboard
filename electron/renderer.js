@@ -60,9 +60,10 @@ async function loadConfig(source) {
     if (source.startsWith('http://') || source.startsWith('https://')) {
       setStatus('Loading config from URL...');
       result = await window.onboard.loadConfigURL(source);
-    } else if (source === 'bundled') {
-      setStatus('Loading default config...');
-      result = await window.onboard.loadBundledConfig();
+    } else if (source === 'bundled' || source.startsWith('bundled:')) {
+      const name = source === 'bundled' ? undefined : source.slice('bundled:'.length);
+      setStatus('Loading config...');
+      result = await window.onboard.loadBundledConfig(name);
     } else {
       setStatus('Loading config...');
       result = await window.onboard.loadConfigFile(source);
@@ -129,7 +130,7 @@ function resetConfig() {
 
 function formatPath(filePath) {
   if (!filePath) return '';
-  if (filePath === 'bundled') return 'Built-in config';
+  if (filePath === 'bundled' || filePath.startsWith('bundled:')) return 'Built-in config';
   if (filePath.startsWith('http://') || filePath.startsWith('https://')) return filePath;
   // Replace home directory with ~
   if (homeDir && filePath.startsWith(homeDir)) {
@@ -797,10 +798,7 @@ async function cancelInstall(appId) {
   setStatus('Installation cancelled');
 }
 
-async function openApp(appId) {
-  const app = (currentConfig?.apps || []).find(a => a.id === appId);
-  if (!app) return;
-
+async function resolveAppPath(app) {
   // Try to find the app path from the check command
   // Most apps have check: "ls /Applications/AppName.app"
   const checkCmd = app.check || '';
@@ -811,40 +809,24 @@ async function openApp(appId) {
     const paths = appPathMatch[1].split('||').map(p => p.trim().replace(/\\/g, ''));
     for (const appPath of paths) {
       const exists = await window.onboard.run(`ls "${appPath}"`);
-      if (exists.succeeded) {
-        await window.onboard.openPath(appPath);
-        return;
-      }
+      if (exists.succeeded) return appPath;
     }
   }
 
-  // Fallback: try standard Applications path with app name
-  const standardPath = `/Applications/${app.name}.app`;
-  await window.onboard.openPath(standardPath);
+  // Fallback: standard Applications path
+  return `/Applications/${app.name}.app`;
+}
+
+async function openApp(appId) {
+  const app = (currentConfig?.apps || []).find(a => a.id === appId);
+  if (!app) return;
+  await window.onboard.openPath(await resolveAppPath(app));
 }
 
 async function revealAppInFinder(appId) {
   const app = (currentConfig?.apps || []).find(a => a.id === appId);
   if (!app) return;
-
-  // Try to find the app path from the check command
-  const checkCmd = app.check || '';
-  const appPathMatch = checkCmd.match(/ls\s+(.+\.app)/);
-
-  if (appPathMatch) {
-    const paths = appPathMatch[1].split('||').map(p => p.trim().replace(/\\/g, ''));
-    for (const appPath of paths) {
-      const exists = await window.onboard.run(`ls "${appPath}"`);
-      if (exists.succeeded) {
-        await window.onboard.showInFolder(appPath);
-        return;
-      }
-    }
-  }
-
-  // Fallback: try standard Applications path
-  const standardPath = `/Applications/${app.name}.app`;
-  await window.onboard.showInFolder(standardPath);
+  await window.onboard.showInFolder(await resolveAppPath(app));
 }
 
 function uninstallApp(appId) {
@@ -972,7 +954,7 @@ async function openFilePicker() {
 
 function initTerminalOutput(id) {
   if (!terminalOutputs[id]) {
-    terminalOutputs[id] = { lines: [], poppedOut: false, active: false };
+    terminalOutputs[id] = { lines: [], poppedOut: false, active: false, expanded: false };
   }
 }
 
@@ -1008,15 +990,14 @@ function updateTerminalDisplay(id) {
   const isActive = output?.active;
   const isPoppedOut = output?.poppedOut;
 
-  // Hide history button when terminal is visible inline
+  // Hide history button — terminal inline is now always visible when there's output
   if (historyBtn) {
-    const terminalVisible = el && el.style.display === 'block';
-    historyBtn.style.display = (!terminalVisible && hasOutput) ? 'flex' : 'none';
+    historyBtn.style.display = 'none';
   }
 
   if (!el) return;
 
-  // Don't show inline if popped out or no output
+  // Show inline if there's output and not popped out
   if (!hasOutput || isPoppedOut) {
     el.style.display = 'none';
     return;
@@ -1025,8 +1006,10 @@ function updateTerminalDisplay(id) {
   // Keep terminal visible (single line when not active, can expand when clicked)
   el.style.display = 'block';
 
-  // Collapse to single line when not active
-  if (!isActive) {
+  // Preserve expanded state across re-renders
+  if (output?.expanded) {
+    el.classList.add('expanded');
+  } else {
     el.classList.remove('expanded');
   }
 
@@ -1062,9 +1045,12 @@ function clearTerminalOutput(id) {
 }
 
 function toggleTerminalExpand(id) {
+  initTerminalOutput(id);
   const el = document.getElementById(`terminal-${id}`);
   if (!el) return;
+  terminalOutputs[id].expanded = !terminalOutputs[id].expanded;
   el.classList.toggle('expanded');
+  updateTerminalDisplay(id);
 }
 
 function showTerminalHistory(id) {

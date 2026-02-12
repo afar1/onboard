@@ -1154,10 +1154,17 @@ html, body {
 
 .terminal-inline.expanded .terminal-full {
   display: block;
+  user-select: text;
+  -webkit-user-select: text;
+  cursor: text;
 }
 
 .terminal-inline.expanded .terminal-last-line {
   display: none;
+}
+
+.terminal-inline.expanded .terminal-actions {
+  margin-left: auto;
 }
 
 /* ─── Terminal Output (legacy) ───────────────────────────────────── */

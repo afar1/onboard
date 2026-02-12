@@ -115,8 +115,8 @@ contextBridge.exposeInMainWorld('onboard', {
   // Load config from a URL.
   loadConfigURL: (url) => ipcRenderer.invoke('config:loadURL', url),
 
-  // Load the bundled default config.
-  loadBundledConfig: () => ipcRenderer.invoke('config:loadBundled'),
+  // Load a bundled config by name (defaults to 'default').
+  loadBundledConfig: (name) => ipcRenderer.invoke('config:loadBundled', name),
 
   // Set callback for when a .onboard file is opened (double-click).
   onFileOpened: (callback) => {
