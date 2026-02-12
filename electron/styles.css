@@ -553,6 +553,25 @@ html, body {
   color: var(--red);
 }
 
+.btn-terminal {
+  background: transparent;
+  border-color: var(--border);
+  color: var(--text-muted);
+  padding: 4px 6px;
+  opacity: 0;
+  transition: opacity 0.15s, background 0.15s, border-color 0.15s, color 0.15s;
+}
+
+.tool-card:hover .btn-terminal {
+  opacity: 1;
+}
+
+.btn-terminal:hover {
+  background: var(--bg-hover);
+  border-color: var(--text-muted);
+  color: var(--text-primary);
+}
+
 /* ─── Update Available Badge ─────────────────────────────────────── */
 
 .status-badge.update-available {
@@ -653,6 +672,19 @@ html, body {
 .action-bar-text {
   font-size: 12px;
   color: var(--text-secondary);
+}
+
+.action-bar-text.loading::before {
+  content: '';
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border: 2px solid var(--border);
+  border-top-color: var(--blue);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  margin-right: 6px;
+  vertical-align: middle;
 }
 
 .icon-btn {
@@ -937,6 +969,100 @@ html, body {
   padding: 20px;
 }
 
+/* ─── Config History Popup ───────────────────────────────────────── */
+
+.config-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.config-history-popup {
+  position: absolute;
+  top: 120px;
+  right: 16px;
+  width: 300px;
+  max-height: 280px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-md);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+  z-index: 100;
+  overflow: hidden;
+}
+
+.config-history-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--border-light);
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.config-history-close {
+  background: none;
+  border: none;
+  padding: 4px;
+  cursor: pointer;
+  color: var(--text-muted);
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+}
+
+.config-history-close:hover {
+  background: var(--bg-hover);
+  color: var(--text-primary);
+}
+
+.config-history-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  max-height: 230px;
+  overflow-y: auto;
+}
+
+.config-history-list li {
+  padding: 10px 12px;
+  cursor: pointer;
+  border-bottom: 1px solid var(--border-light);
+  transition: background 0.15s;
+}
+
+.config-history-list li:last-child {
+  border-bottom: none;
+}
+
+.config-history-list li:hover {
+  background: var(--bg-hover);
+}
+
+.config-history-name {
+  display: block;
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--text-primary);
+  margin-bottom: 2px;
+}
+
+.config-history-path {
+  display: block;
+  font-size: 10px;
+  color: var(--text-muted);
+  font-family: var(--font-mono);
+}
+
+.config-history-empty {
+  color: var(--text-muted);
+  text-align: center;
+  padding: 20px;
+  font-size: 12px;
+}
+
 .action-bar-text.clickable {
   cursor: pointer;
 }
@@ -963,6 +1089,12 @@ html, body {
   background: var(--bg-tertiary);
   border-bottom: 1px solid var(--border-light);
   min-height: 28px;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.terminal-header:hover {
+  background: var(--bg-hover);
 }
 
 .terminal-last-line {

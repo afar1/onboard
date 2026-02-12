@@ -56,6 +56,7 @@ async function loadConfig(source) {
   let result;
 
   try {
+    setStatusLoading(true);
     if (source.startsWith('http://') || source.startsWith('https://')) {
       setStatus('Loading config from URL...');
       result = await window.onboard.loadConfigURL(source);
@@ -63,10 +64,12 @@ async function loadConfig(source) {
       setStatus('Loading default config...');
       result = await window.onboard.loadBundledConfig();
     } else {
-      setStatus('Loading config file...');
+      setStatus('Loading config...');
       result = await window.onboard.loadConfigFile(source);
     }
+    setStatusLoading(false);
   } catch (err) {
+    setStatusLoading(false);
     showError(`Failed to load config: ${err.message}`);
     return false;
   }
@@ -92,11 +95,14 @@ async function loadConfig(source) {
   // Save for persistence
   localStorage.setItem('lastConfigPath', source);
 
+  // Save to config history
+  saveToConfigHistory(source, currentConfig?.name);
+
   // Update UI
   updateConfigDisplay();
   renderToolCards();
   renderAppCards();
-  setStatus('Ready');
+  setStatus('Ready (drop .onboard file)');
 
   // Auto-check all tools
   checkAllTools();
@@ -200,8 +206,8 @@ function renderAction(item, state, type, terminalInfo = null) {
   }
 
   // Helper to render terminal history button
-  const terminalBtn = (terminalId, show) => show ? `<button class="btn btn-sm btn-uninstall terminal-history-btn" id="terminal-history-${terminalId}"
-    onclick="popOutTerminal('${terminalId}')" title="View output">
+  const terminalBtn = (terminalId, show) => show ? `<button class="btn btn-sm btn-terminal" id="terminal-history-${terminalId}"
+    onclick="showTerminalHistory('${terminalId}')" title="View output">
     <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
       <polyline points="4 17 10 11 4 5"/><line x1="12" y1="19" x2="20" y2="19"/>
     </svg>
@@ -223,9 +229,9 @@ function renderAction(item, state, type, terminalInfo = null) {
       const showTerminal = terminalInfo && !terminalInfo.isActive && terminalInfo.hasOutput;
       return `<div class="app-actions">
         ${terminalBtn(terminalInfo?.id, showTerminal)}
-        <button class="btn btn-sm btn-uninstall" onclick="uninstallApp('${item.id}')" title="Uninstall">
+        <button class="btn btn-sm btn-uninstall" onclick="revealAppInFinder('${item.id}')" title="Show in Finder">
           <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 6h18M19 6v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>
           </svg>
         </button>
         <button class="btn btn-sm btn-open" onclick="openApp('${item.id}')">Open</button>
@@ -310,17 +316,11 @@ function renderToolCards() {
           ${renderAction(tool, state, 'tool', terminalInfo)}
         </div>
       </div>
-      <div class="terminal-inline" id="terminal-${terminalId}" style="display: ${(isActive && hasOutput && !isPoppedOut) ? 'block' : 'none'};">
-        <div class="terminal-header">
+      <div class="terminal-inline" id="terminal-${terminalId}" style="display: ${(hasOutput && !isPoppedOut) ? 'block' : 'none'};">
+        <div class="terminal-header" onclick="toggleTerminalExpand('${terminalId}')">
           <span class="terminal-last-line"></span>
           <div class="terminal-actions">
-            <button class="terminal-btn" onclick="toggleTerminalExpand('${terminalId}')" title="Expand">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
-                <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
-              </svg>
-            </button>
-            <button class="terminal-btn" onclick="popOutTerminal('${terminalId}')" title="Pop out">
+            <button class="terminal-btn" onclick="event.stopPropagation(); popOutTerminal('${terminalId}')" title="Pop out">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
                 <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
@@ -370,17 +370,11 @@ function renderAppCards() {
           ${renderAction(app, state, 'app', terminalInfo)}
         </div>
       </div>
-      <div class="terminal-inline" id="terminal-${terminalId}" style="display: ${(isActive && hasOutput && !isPoppedOut) ? 'block' : 'none'};">
-        <div class="terminal-header">
+      <div class="terminal-inline" id="terminal-${terminalId}" style="display: ${(hasOutput && !isPoppedOut) ? 'block' : 'none'};">
+        <div class="terminal-header" onclick="toggleTerminalExpand('${terminalId}')">
           <span class="terminal-last-line"></span>
           <div class="terminal-actions">
-            <button class="terminal-btn" onclick="toggleTerminalExpand('${terminalId}')" title="Expand">
-              <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
-                <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
-              </svg>
-            </button>
-            <button class="terminal-btn" onclick="popOutTerminal('${terminalId}')" title="Pop out">
+            <button class="terminal-btn" onclick="event.stopPropagation(); popOutTerminal('${terminalId}')" title="Pop out">
               <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                 <path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/>
                 <polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/>
@@ -600,7 +594,7 @@ async function checkAllTools() {
   const appChecks = apps.map(app => checkAppFast(app));
   await Promise.all([...toolChecks, ...appChecks]);
 
-  setStatus('Ready');
+  setStatus('Ready (drop .onboard file)');
 
   // Phase 2: Background enrichment for versions (fire and forget)
   tools.forEach(tool => enrichToolVersion(tool));
@@ -829,6 +823,30 @@ async function openApp(appId) {
   await window.onboard.openPath(standardPath);
 }
 
+async function revealAppInFinder(appId) {
+  const app = (currentConfig?.apps || []).find(a => a.id === appId);
+  if (!app) return;
+
+  // Try to find the app path from the check command
+  const checkCmd = app.check || '';
+  const appPathMatch = checkCmd.match(/ls\s+(.+\.app)/);
+
+  if (appPathMatch) {
+    const paths = appPathMatch[1].split('||').map(p => p.trim().replace(/\\/g, ''));
+    for (const appPath of paths) {
+      const exists = await window.onboard.run(`ls "${appPath}"`);
+      if (exists.succeeded) {
+        await window.onboard.showInFolder(appPath);
+        return;
+      }
+    }
+  }
+
+  // Fallback: try standard Applications path
+  const standardPath = `/Applications/${app.name}.app`;
+  await window.onboard.showInFolder(standardPath);
+}
+
 function uninstallApp(appId) {
   const app = (currentConfig?.apps || []).find(a => a.id === appId);
   if (!app) return;
@@ -990,20 +1008,27 @@ function updateTerminalDisplay(id) {
   const isActive = output?.active;
   const isPoppedOut = output?.poppedOut;
 
-  // Show/hide history button (visible when not active but has output)
+  // Hide history button when terminal is visible inline
   if (historyBtn) {
-    historyBtn.style.display = (!isActive && hasOutput) ? 'flex' : 'none';
+    const terminalVisible = el && el.style.display === 'block';
+    historyBtn.style.display = (!terminalVisible && hasOutput) ? 'flex' : 'none';
   }
 
   if (!el) return;
 
-  // Don't show inline if popped out or not active
-  if (!hasOutput || isPoppedOut || !isActive) {
+  // Don't show inline if popped out or no output
+  if (!hasOutput || isPoppedOut) {
     el.style.display = 'none';
     return;
   }
 
+  // Keep terminal visible (single line when not active, can expand when clicked)
   el.style.display = 'block';
+
+  // Collapse to single line when not active
+  if (!isActive) {
+    el.classList.remove('expanded');
+  }
 
   // Show last line for compact view
   const lastLine = output.lines[output.lines.length - 1];
@@ -1040,6 +1065,40 @@ function toggleTerminalExpand(id) {
   const el = document.getElementById(`terminal-${id}`);
   if (!el) return;
   el.classList.toggle('expanded');
+}
+
+function showTerminalHistory(id) {
+  const el = document.getElementById(`terminal-${id}`);
+  if (!el) return;
+
+  const output = terminalOutputs[id];
+  if (!output || output.lines.length === 0) return;
+
+  // Show the terminal inline and expand it
+  el.style.display = 'block';
+  el.classList.add('expanded');
+
+  // Hide the history button since terminal is now visible
+  const historyBtn = document.getElementById(`terminal-history-${id}`);
+  if (historyBtn) {
+    historyBtn.style.display = 'none';
+  }
+
+  // Manually populate the terminal content (don't call updateTerminalDisplay which removes expanded)
+  const lastLine = output.lines[output.lines.length - 1];
+  const lastLineEl = el.querySelector('.terminal-last-line');
+  if (lastLineEl) {
+    lastLineEl.textContent = lastLine.text;
+    lastLineEl.className = `terminal-last-line ${lastLine.stream}`;
+  }
+
+  const fullEl = el.querySelector('.terminal-full');
+  if (fullEl) {
+    fullEl.innerHTML = output.lines.map(l =>
+      `<span class="${l.stream}">${escapeHtml(l.text)}</span>`
+    ).join('\n');
+    fullEl.scrollTop = fullEl.scrollHeight;
+  }
 }
 
 async function popOutTerminal(id) {
@@ -1117,7 +1176,7 @@ function processStatusQueue() {
   if (statusQueue.length === 0) {
     // Fade back to Ready after a delay
     statusTimeout = setTimeout(() => {
-      setStatusDirect('Ready');
+      setStatusDirect('Ready (drop .onboard file)');
       statusTimeout = null;
     }, 2000);
     return;
@@ -1149,6 +1208,17 @@ function setStatus(text) {
 
   const el = document.getElementById('status-text');
   if (el) el.textContent = text;
+}
+
+function setStatusLoading(loading) {
+  const el = document.getElementById('status-text');
+  if (el) {
+    if (loading) {
+      el.classList.add('loading');
+    } else {
+      el.classList.remove('loading');
+    }
+  }
 }
 
 let errorDetailsVisible = false;
@@ -1282,6 +1352,74 @@ function getTimeAgo(date) {
   const hours = Math.floor(minutes / 60);
   if (hours < 24) return `${hours}h ago`;
   return `${Math.floor(hours / 24)}d ago`;
+}
+
+// ─── Config History ────────────────────────────────────────────────
+
+function getConfigHistory() {
+  try {
+    return JSON.parse(localStorage.getItem('configHistory') || '[]');
+  } catch {
+    return [];
+  }
+}
+
+function saveToConfigHistory(source, name) {
+  if (!source || source === 'bundled') return;
+
+  const history = getConfigHistory();
+
+  // Remove existing entry with same path (to move it to top)
+  const filtered = history.filter(h => h.path !== source);
+
+  // Add new entry at the beginning
+  filtered.unshift({
+    path: source,
+    name: name || source.split('/').pop(),
+    timestamp: Date.now(),
+  });
+
+  // Keep only last 10 unique entries
+  const trimmed = filtered.slice(0, 10);
+
+  localStorage.setItem('configHistory', JSON.stringify(trimmed));
+}
+
+function toggleConfigHistory() {
+  const popup = document.getElementById('config-history-popup');
+  if (!popup) return;
+
+  if (popup.style.display === 'block') {
+    popup.style.display = 'none';
+  } else {
+    renderConfigHistory();
+    popup.style.display = 'block';
+  }
+}
+
+function renderConfigHistory() {
+  const list = document.getElementById('config-history-list');
+  if (!list) return;
+
+  const history = getConfigHistory();
+
+  if (history.length === 0) {
+    list.innerHTML = '<li class="config-history-empty">No recent configs</li>';
+    return;
+  }
+
+  list.innerHTML = history.map(entry => {
+    const displayPath = formatPath(entry.path);
+    return `<li onclick="loadConfigFromHistory('${entry.path.replace(/'/g, "\\'")}')">
+      <span class="config-history-name">${entry.name}</span>
+      <span class="config-history-path">${displayPath}</span>
+    </li>`;
+  }).join('');
+}
+
+async function loadConfigFromHistory(path) {
+  toggleConfigHistory();
+  await loadConfig(path);
 }
 
 // ─── Drag and Drop ─────────────────────────────────────────────────
