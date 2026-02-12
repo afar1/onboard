@@ -76,9 +76,10 @@ app.on('window-all-closed', () => {
 // Handle file open events (double-click on .onboard file)
 app.on('open-file', (event, filePath) => {
   event.preventDefault();
-  if (mainWindow) {
+  if (mainWindow && !mainWindow.isDestroyed() && mainWindow.webContents && !mainWindow.webContents.isDestroyed()) {
     mainWindow.webContents.send('config:fileOpened', filePath);
   } else {
+    // Window not ready yet, store for later
     pendingFilePath = filePath;
   }
 });
@@ -275,8 +276,8 @@ ipcMain.handle('shell:openPath', async (_event, filePath) => {
   return shell.openPath(filePath);
 });
 
-// Reveal a path in Finder
-ipcMain.handle('shell:showItemInFolder', async (_event, filePath) => {
+// Reveal a file/folder in Finder
+ipcMain.handle('shell:showInFolder', async (_event, filePath) => {
   shell.showItemInFolder(filePath);
 });
 

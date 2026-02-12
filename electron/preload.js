@@ -94,8 +94,8 @@ contextBridge.exposeInMainWorld('onboard', {
   // Open a path (app, file, or folder) with the default handler.
   openPath: (path) => ipcRenderer.invoke('shell:openPath', path),
 
-  // Reveal a path in Finder.
-  showInFinder: (path) => ipcRenderer.invoke('shell:showItemInFolder', path),
+  // Reveal a file/folder in Finder.
+  showInFolder: (path) => ipcRenderer.invoke('shell:showInFolder', path),
 
   // Set the callback that receives streaming output chunks.
   setStreamCallback: (callback) => {

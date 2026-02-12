@@ -5,7 +5,7 @@ description: "Everything you need to start building"
 dependencies:
   - id: xcode-cli
     name: Xcode CLI Tools
-    icon: "🛠"
+    icon_img: https://developer.apple.com/assets/elements/icons/xcode/xcode-96x96.png
     icon_bg: "#1c7ed6"
     desc: Apple's command line developer tools. Compilers, git, and build essentials.
     check: xcode-select -p
@@ -66,8 +66,8 @@ dependencies:
     depends_on: homebrew
 
   - id: claude
-    name: Claude CLI
-    icon: "🤖"
+    name: Claude Code
+    icon_img: https://www.anthropic.com/images/icons/apple-touch-icon.png
     icon_bg: "#cc785c"
     desc: AI coding assistant from Anthropic.
     check: which claude
@@ -122,7 +122,7 @@ apps:
 
   - id: xcode
     name: Xcode
-    icon: "🔨"
+    icon_img: https://developer.apple.com/assets/elements/icons/xcode/xcode-96x96.png
     icon_bg: "#147EFB"
     desc: Apple's full IDE. Required for iOS/macOS development.
     check: ls /Applications/Xcode.app
