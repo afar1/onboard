@@ -4,6 +4,12 @@
 // ─── Release Notes Data ────────────────────────────────────────────
 
 const RELEASE_NOTES = {
+  '0.1.3': [
+    'ASCII animation in empty state (matches website)',
+    'Terminal button fixes — inline toggle, pop-out behavior',
+    'Renamed default config to "Builder Basics"',
+    'Sample configs: Data Science, Web Developer',
+  ],
   '0.1.2': [
     'Uninstall and upgrade dependencies with version tracking',
     'Terminal output view — inline or pop-out window',
@@ -18,6 +24,7 @@ const RELEASE_NOTES = {
 };
 
 const RELEASE_DATES = {
+  '0.1.3': 'Feb 11 2026',
   '0.1.2': 'Feb 11 2026',
   '0.1.0': 'Feb 11 2026',
 };
