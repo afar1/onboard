@@ -169,17 +169,11 @@
     <div class="essay">
       <p>I think the best way to determine if you're AI native is whether you've built an intuition for what different foundation models are good and bad at. The only way to accumulate this intuition is to make things with these models. Many things. And to spend real time partnering with them to solve real problems. Getting started is easier than ever, but the setup can still be tedious.</p>
 
-      <p>One of the most annoying is the setup of your laptop's environment. Literally the software and dependencies (and quality of life apps) you need to install in order to start working with models like Opus, Codex, Composer, etc.</p>
+      <p>It's time consuming and labyrinthian to set up your laptop's environment for the first time. There are a lot of dependencies and quality-of-life applications you need installed before you can start working with models like Opus, Codex, and Composer.</p>
 
-      <p>We have started running a program at my company called the apprenticeship, which onboards new team members to these tools to help them build a deep intuition for what these models are capable of.</p>
+      <p>We started running a program at my company called The Apprenticeship, which onboards new team members to these tools and helps them build a deep intuition for what the models are capable of. Every time we onboard someone new, the machine is fresh and we hit all the same slowdowns. By the time you finish explaining everything they need to install, their head is already spinning. So we built onboard.computer to make it easy on ourselves. It's not a new idea, but it gets people building way faster. Onboard.computer reads a config file, compares it to what's on your machine, and shows you what's missing or out of date.</p>
 
-      <p>Every time we onboard someone new the machine is fresh and we hit all the same slowdowns.</p>
-
-      <p>By the time you finish explaining all the stuff you have to install, the person's head is already spinning. So we built onboard.computer to make it easy on ourselves. It's not a new idea but it gets people building applications and software way faster.</p>
-
-      <p>Onboard.computer reads a config file, compares it to your machine's installed applications, and shows you what you need to install or upgrade.</p>
-
-      <p>For devs, we created a Claude skill you can use to produce these YAML config files from directly within your project root or repo (we call them .onboard files). Run the skill and it will find all the dependencies, ask you for any QOL apps you recommend and produce a YAML file that you can give to any new team member.</p>
+      <p>For devs, we created a companion Claude skill called "/onboard-computer" you can use to produce these YAML config files from directly within your project root or repo (we call them .onboard files). Run the skill and it will find all the dependencies, ask you for any QOL apps you recommend and produce a file that you can give to any new team member.</p>
 
       <p>Drop it in a repo, share it with your team, and anyone can go from zero to building in minutes instead of hours.</p>
 
