@@ -1,0 +1,29 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Document shape with folded corner -->
+  <path d="M96 32C96 14.3 110.3 0 128 0H320L416 96V480C416 497.7 401.7 512 384 512H128C110.3 512 96 497.7 96 480V32Z" fill="#0d1117"/>
+  <path d="M320 0L416 96H352C333.2 96 320 82.8 320 64V0Z" fill="#21262d"/>
+
+  <!-- Subtle border -->
+  <path d="M96 32C96 14.3 110.3 0 128 0H320L416 96V480C416 497.7 401.7 512 384 512H128C110.3 512 96 497.7 96 480V32Z" stroke="#30363d" stroke-width="2" fill="none"/>
+
+  <!-- Box base (centered in document) -->
+  <path d="M172 260L256 216L340 260V348L256 392L172 348V260Z" fill="#1c2128" stroke="#30363d" stroke-width="3"/>
+
+  <!-- Box top flap left -->
+  <path d="M172 260L256 304L256 216L172 260Z" fill="#21262d"/>
+
+  <!-- Box top flap right -->
+  <path d="M340 260L256 304L256 216L340 260Z" fill="#161b22"/>
+
+  <!-- Arrow pointing down into box -->
+  <path d="M256 148L256 236" stroke="#58a6ff" stroke-width="18" stroke-linecap="round"/>
+  <path d="M214 200L256 242L298 200" stroke="#58a6ff" stroke-width="18" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Checkmark on box front -->
+  <path d="M228 348L250 370L288 320" stroke="#3fb950" stroke-width="12" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- "ONBOARD" text area - three subtle lines suggesting config content -->
+  <rect x="160" y="424" width="80" height="6" rx="3" fill="#30363d"/>
+  <rect x="160" y="444" width="120" height="6" rx="3" fill="#30363d"/>
+  <rect x="160" y="464" width="60" height="6" rx="3" fill="#30363d"/>
+</svg>

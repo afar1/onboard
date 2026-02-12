@@ -345,7 +345,13 @@ function renderToolCards() {
 
 function renderAppCards() {
   const container = document.getElementById('apps-container');
+  const section = document.getElementById('apps-section');
   const apps = currentConfig?.apps || [];
+
+  if (section) {
+    section.style.display = apps.length === 0 ? 'none' : '';
+  }
+
   container.innerHTML = '';
 
   apps.forEach(app => {
@@ -1408,6 +1414,37 @@ async function loadConfigFromHistory(path) {
   await loadConfig(path);
 }
 
+// ─── ASCII Animation ───────────────────────────────────────────────
+
+const FRAME_COUNT = 78;
+const ANIMATION_FPS = 15;
+let animationFrames = [];
+let animationInterval = null;
+
+async function initAsciiAnimation() {
+  const el = document.getElementById('ascii-animation');
+  if (!el) return;
+
+  for (let i = 1; i <= FRAME_COUNT; i++) {
+    const num = String(i).padStart(5, '0');
+    try {
+      const res = await fetch(`animations/computer/frame_${num}.txt`);
+      animationFrames.push(await res.text());
+      if (i === 1) el.textContent = animationFrames[0];
+    } catch (e) {
+      break;
+    }
+  }
+
+  if (animationFrames.length > 0) {
+    let current = 0;
+    animationInterval = setInterval(() => {
+      current = (current + 1) % animationFrames.length;
+      el.textContent = animationFrames[current];
+    }, 1000 / ANIMATION_FPS);
+  }
+}
+
 // ─── Drag and Drop ─────────────────────────────────────────────────
 
 function initDragDrop() {
@@ -1464,6 +1501,7 @@ async function init() {
   initDragDrop();
   initUpdater();
   initStreamCallback();
+  initAsciiAnimation();
 
   homeDir = await window.onboard.homedir();
 

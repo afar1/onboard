@@ -22,7 +22,7 @@
       --border: #2a2a30;
       --text: #e8e8e8;
       --text-dim: #888;
-      --accent: #00ff88;
+      --accent: #ff6eb4;
     }
 
     body {
@@ -32,24 +32,18 @@
       min-height: 100vh;
     }
 
-    .container {
-      max-width: 700px;
-      margin: 0 auto;
-      padding: 0 24px;
-    }
-
     .hero {
-      min-height: 100vh;
+      min-height: 70vh;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
-      padding: 40px 24px;
+      padding: 40px 24px 20px;
     }
 
     .ascii-visual {
-      margin-bottom: 32px;
+      margin-bottom: 24px;
       display: flex;
       align-items: center;
       justify-content: center;
@@ -67,7 +61,7 @@
     .logo {
       font-size: 14px;
       color: var(--text-dim);
-      margin-bottom: 16px;
+      margin-bottom: 12px;
       letter-spacing: 0.05em;
     }
 
@@ -76,17 +70,17 @@
     }
 
     h1 {
-      font-size: 32px;
+      font-size: 28px;
       font-weight: 500;
       line-height: 1.3;
-      margin-bottom: 24px;
+      margin-bottom: 16px;
       max-width: 500px;
     }
 
     .tagline {
-      font-size: 14px;
+      font-size: 13px;
       color: var(--text-dim);
-      margin-bottom: 40px;
+      margin-bottom: 28px;
       max-width: 400px;
       line-height: 1.6;
     }
@@ -109,7 +103,7 @@
     }
 
     .meta {
-      margin-top: 24px;
+      margin-top: 16px;
       font-size: 11px;
       color: var(--text-dim);
     }
@@ -123,36 +117,101 @@
       color: var(--accent);
     }
 
-    .details {
+    .configs {
       border-top: 1px solid var(--border);
-      padding: 80px 24px;
-    }
-
-    .details h2 {
-      font-size: 14px;
-      font-weight: 500;
-      color: var(--accent);
-      margin-bottom: 32px;
-      text-align: center;
-    }
-
-    .code-block {
-      background: #111;
-      border: 1px solid var(--border);
-      padding: 24px;
-      font-size: 12px;
-      line-height: 1.8;
-      overflow-x: auto;
-      max-width: 600px;
+      padding: 48px 24px;
+      max-width: 800px;
       margin: 0 auto;
     }
 
-    .code-block .key { color: var(--accent); }
-    .code-block .string { color: #ff9f43; }
+    .configs-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 32px;
+    }
+
+    .configs-section h2 {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--accent);
+      margin-bottom: 16px;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+    }
+
+    .config-list {
+      list-style: none;
+    }
+
+    .config-list li {
+      margin-bottom: 8px;
+    }
+
+    .config-list a {
+      color: var(--text);
+      text-decoration: none;
+      font-size: 13px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .config-list a:hover {
+      color: var(--accent);
+    }
+
+    .config-list .ext {
+      color: var(--text-dim);
+      font-size: 11px;
+    }
+
+    .create-box {
+      background: #111;
+      border: 1px solid var(--border);
+      padding: 16px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+
+    .create-box code {
+      color: var(--accent);
+      background: rgba(255, 110, 180, 0.1);
+      padding: 2px 6px;
+    }
+
+    .create-box p {
+      color: var(--text-dim);
+      margin-bottom: 12px;
+    }
+
+    .create-box p:last-child {
+      margin-bottom: 0;
+    }
+
+    .footer {
+      border-top: 1px solid var(--border);
+      padding: 24px;
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-dim);
+    }
+
+    .footer a {
+      color: var(--text-dim);
+      text-decoration: none;
+    }
+
+    .footer a:hover {
+      color: var(--accent);
+    }
 
     @media (max-width: 600px) {
-      h1 { font-size: 24px; }
+      h1 { font-size: 22px; }
       #ascii-animation { font-size: 3px; }
+      .configs-grid {
+        grid-template-columns: 1fr;
+        gap: 32px;
+      }
     }
   </style>
 </head>
@@ -167,26 +226,34 @@
     <p class="tagline">Install dev tools and apps with a single config file. Drop it in, click install, done.</p>
     <a href="https://github.com/afar1/onboard-releases/releases/latest/download/onboard.computer-0.1.2-arm64.dmg" class="btn">Download for macOS</a>
     <p class="meta">
-      Free and open source · <a href="https://github.com/afar1/onboard">GitHub</a>
+      Free and open source · <a href="https://github.com/afar1/onboard">View source</a>
     </p>
   </section>
 
-  <section class="details">
-    <div class="container">
-      <h2>Simple YAML config</h2>
-      <pre class="code-block"><span class="key">name</span>: <span class="string">"Web Dev Setup"</span>
-
-<span class="key">dependencies</span>:
-  - <span class="key">id</span>: <span class="string">homebrew</span>
-    <span class="key">check</span>: <span class="string">which brew</span>
-    <span class="key">install</span>: <span class="string">/bin/bash -c "$(curl ...)"</span>
-
-  - <span class="key">id</span>: <span class="string">node</span>
-    <span class="key">check</span>: <span class="string">which node</span>
-    <span class="key">install</span>: <span class="string">brew install node</span>
-    <span class="key">depends_on</span>: <span class="string">homebrew</span></pre>
+  <section class="configs">
+    <div class="configs-grid">
+      <div class="configs-section">
+        <h2>Example configs</h2>
+        <ul class="config-list">
+          <li><a href="/builder.onboard">Builder Basics <span class="ext">.onboard</span></a></li>
+          <li><a href="/data-science.onboard">Data Science <span class="ext">.onboard</span></a></li>
+          <li><a href="/web-dev.onboard">Web Developer <span class="ext">.onboard</span></a></li>
+        </ul>
+      </div>
+      <div class="configs-section">
+        <h2>Create your own</h2>
+        <div class="create-box">
+          <p>With Claude Code, run:</p>
+          <p><code>/onboard-computer</code></p>
+          <p>Scans your machine and generates a .onboard config from your current setup.</p>
+        </div>
+      </div>
     </div>
   </section>
+
+  <footer class="footer">
+    <a href="https://github.com/afar1/onboard">GitHub</a> · MIT License
+  </footer>
 
   <script>
     const FRAME_COUNT = 78;

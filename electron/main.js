@@ -134,8 +134,11 @@ function validateConfig(config) {
   if (!Array.isArray(config.dependencies)) {
     throw new Error('Config missing "dependencies" array');
   }
-  if (!Array.isArray(config.apps)) {
-    throw new Error('Config missing "apps" array');
+  if (config.apps !== undefined && !Array.isArray(config.apps)) {
+    throw new Error('"apps" must be an array if provided');
+  }
+  if (!config.apps) {
+    config.apps = [];
   }
 
   const validateItem = (item, section, index) => {
@@ -309,10 +312,10 @@ ipcMain.handle('config:loadURL', async (_event, url) => {
   }
 });
 
-// Load a bundled config by name (defaults to 'default')
+// Load a bundled config by name (defaults to 'builder')
 ipcMain.handle('config:loadBundled', async (_event, name) => {
   try {
-    const filename = (name || 'default') + '.onboard';
+    const filename = (name || 'builder') + '.onboard';
     // In development, load from examples/; in production, from Resources
     const devPath = path.join(__dirname, 'examples', filename);
     const prodPath = path.join(process.resourcesPath, filename);

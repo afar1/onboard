@@ -173,10 +173,14 @@ html, body {
   max-width: 400px;
 }
 
-.empty-icon {
-  font-size: 64px;
+.ascii-animation {
+  font-family: var(--font-mono);
+  font-size: 3px;
+  line-height: 1.1;
+  color: var(--blue);
+  white-space: pre;
   margin-bottom: 16px;
-  opacity: 0.8;
+  text-shadow: 0 0 8px rgba(88, 166, 255, 0.3);
 }
 
 .empty-state h2 {

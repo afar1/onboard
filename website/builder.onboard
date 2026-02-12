@@ -20,6 +20,33 @@ dependencies:
     install: '/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"'
     depends_on: xcode-cli
 
+  - id: bun
+    name: Bun
+    icon_img: bun.svg
+    icon_bg: "#fbf0df"
+    desc: Fast JavaScript runtime and package manager.
+    check: which bun
+    install: brew install oven-sh/bun/bun
+    depends_on: homebrew
+
+  - id: claude
+    name: Claude Code
+    icon_img: https://www.anthropic.com/images/icons/apple-touch-icon.png
+    icon_bg: "#cc785c"
+    desc: AI coding assistant from Anthropic.
+    check: which claude
+    install: brew install claude
+    depends_on: homebrew
+
+  - id: gh
+    name: GitHub CLI
+    icon_img: github.png
+    icon_bg: "#24292e"
+    desc: Interact with GitHub from your terminal.
+    check: which gh
+    install: brew install gh
+    depends_on: homebrew
+
   - id: git
     name: Git
     icon_img: git.png
@@ -47,61 +74,7 @@ dependencies:
     install: brew install python
     depends_on: homebrew
 
-  - id: bun
-    name: Bun
-    icon_img: bun.svg
-    icon_bg: "#fbf0df"
-    desc: Fast JavaScript runtime and package manager.
-    check: which bun
-    install: brew install oven-sh/bun/bun
-    depends_on: homebrew
-
-  - id: gh
-    name: GitHub CLI
-    icon_img: github.png
-    icon_bg: "#24292e"
-    desc: Interact with GitHub from your terminal.
-    check: which gh
-    install: brew install gh
-    depends_on: homebrew
-
-  - id: claude
-    name: Claude Code
-    icon_img: https://www.anthropic.com/images/icons/apple-touch-icon.png
-    icon_bg: "#cc785c"
-    desc: AI coding assistant from Anthropic.
-    check: which claude
-    install: brew install claude
-    depends_on: homebrew
-
 apps:
-  - id: fieldtheory
-    name: Field Theory
-    icon_img: fieldtheory-icon.png
-    icon_bg: "#1a1a2e"
-    desc: Local voice transcripts and context management.
-    check: ls /Applications/Field\ Theory.app
-    install: brew install --cask fieldtheory
-    depends_on: homebrew
-
-  - id: cursor
-    name: Cursor
-    icon_img: Cursor.png
-    icon_bg: "#1a1a2e"
-    desc: AI-powered code editor.
-    check: ls /Applications/Cursor.app
-    install: brew install --cask cursor
-    depends_on: homebrew
-
-  - id: rectangle
-    name: Rectangle
-    icon_img: Rectangle.png
-    icon_bg: "#2ecc71"
-    desc: Window management with keyboard shortcuts.
-    check: ls /Applications/Rectangle.app
-    install: brew install --cask rectangle
-    depends_on: homebrew
-
   - id: alfred
     name: Alfred
     icon_img: Alfred-5.png
@@ -118,6 +91,33 @@ apps:
     desc: Keep your Mac awake during presentations or long tasks.
     check: ls /Applications/Caffeine.app
     install: brew install --cask caffeine
+    depends_on: homebrew
+
+  - id: cursor
+    name: Cursor
+    icon_img: Cursor.png
+    icon_bg: "#1a1a2e"
+    desc: AI-powered code editor.
+    check: ls /Applications/Cursor.app
+    install: brew install --cask cursor
+    depends_on: homebrew
+
+  - id: fieldtheory
+    name: Field Theory
+    icon_img: fieldtheory-icon.png
+    icon_bg: "#1a1a2e"
+    desc: Local voice transcripts and context management.
+    check: ls /Applications/Field\ Theory.app
+    install: brew install --cask fieldtheory
+    depends_on: homebrew
+
+  - id: rectangle
+    name: Rectangle
+    icon_img: Rectangle.png
+    icon_bg: "#2ecc71"
+    desc: Window management with keyboard shortcuts.
+    check: ls /Applications/Rectangle.app
+    install: brew install --cask rectangle
     depends_on: homebrew
 
   - id: xcode

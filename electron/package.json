@@ -50,7 +50,8 @@
       {
         "ext": "onboard",
         "name": "Onboard Configuration",
-        "role": "Editor"
+        "role": "Editor",
+        "icon": "assets/document.icns"
       }
     ],
     "files": [
@@ -59,8 +60,8 @@
     ],
     "extraResources": [
       {
-        "from": "examples/default.onboard",
-        "to": "default.onboard"
+        "from": "examples/builder.onboard",
+        "to": "builder.onboard"
       }
     ]
   }
