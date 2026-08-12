@@ -193,7 +193,7 @@ html, body {
 .empty-state p {
   color: var(--text-secondary);
   font-size: 14px;
-  margin-bottom: 24px;
+  margin-bottom: 18px;
 }
 
 .empty-state code {
@@ -208,7 +208,7 @@ html, body {
   display: flex;
   align-items: center;
   gap: 16px;
-  margin: 24px 0;
+  margin: 18px 0;
   color: var(--text-muted);
   font-size: 12px;
 }
@@ -229,6 +229,50 @@ html, body {
 
 .url-input-group .url-input {
   width: 260px;
+}
+
+.built-in-configs {
+  display: grid;
+  gap: 8px;
+  margin: 0 auto;
+  width: min(360px, 100%);
+}
+
+.built-in-config {
+  width: 100%;
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  background: var(--bg-card);
+  color: var(--text-primary);
+  cursor: pointer;
+  padding: 10px 12px;
+  text-align: left;
+  transition: border-color 0.15s, background 0.15s, transform 0.1s;
+}
+
+.built-in-config:hover {
+  border-color: var(--blue);
+  background: var(--bg-hover);
+}
+
+.built-in-config:active {
+  transform: translateY(1px);
+}
+
+.built-in-config-name,
+.built-in-config-desc {
+  display: block;
+}
+
+.built-in-config-name {
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.built-in-config-desc {
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: 12px;
 }
 
 /* ─── Config Header ──────────────────────────────────────────────── */
