@@ -21,7 +21,21 @@
     <div class="empty-state-content">
       <pre class="ascii-animation" id="ascii-animation"></pre>
       <h2>Load a configuration</h2>
-      <p>Drop an <code>.onboard</code> file here to get started</p>
+      <p>Choose a built-in config, or drop an <code>.onboard</code> file</p>
+      <div class="built-in-configs" aria-label="Built-in configurations">
+        <button class="built-in-config" onclick="loadConfig('bundled:builder')">
+          <span class="built-in-config-name">Builder Basics</span>
+          <span class="built-in-config-desc">Core tools for building on macOS</span>
+        </button>
+        <button class="built-in-config" onclick="loadConfig('bundled:web-dev')">
+          <span class="built-in-config-name">Web Developer</span>
+          <span class="built-in-config-desc">Frontend and full-stack setup</span>
+        </button>
+        <button class="built-in-config" onclick="loadConfig('bundled:data-science')">
+          <span class="built-in-config-name">Data Science</span>
+          <span class="built-in-config-desc">Python analysis and ML tools</span>
+        </button>
+      </div>
       <div class="empty-divider"><span>or</span></div>
       <div class="url-input-group">
         <input type="text" class="url-input" id="config-url" placeholder="Paste config URL...">

@@ -321,7 +321,8 @@ ipcMain.handle('config:loadBundled', async (_event, name) => {
     const prodPath = path.join(process.resourcesPath, filename);
     const filePath = fs.existsSync(devPath) ? devPath : prodPath;
     const content = fs.readFileSync(filePath, 'utf8');
-    return yaml.load(content); // Bundled config assumed valid
+    const config = yaml.load(content);
+    return validateConfig(config);
   } catch (err) {
     return { error: err.message };
   }

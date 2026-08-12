@@ -4,6 +4,10 @@
 // ─── Release Notes Data ────────────────────────────────────────────
 
 const RELEASE_NOTES = {
+  '0.1.4': [
+    'Built-in config picker with Builder Basics, Data Science, and Web Developer',
+    'All example configs are bundled in the packaged app',
+  ],
   '0.1.3': [
     'ASCII animation in empty state (matches website)',
     'Terminal button fixes — inline toggle, pop-out behavior',
@@ -24,6 +28,7 @@ const RELEASE_NOTES = {
 };
 
 const RELEASE_DATES = {
+  '0.1.4': 'Aug 12 2026',
   '0.1.3': 'Feb 11 2026',
   '0.1.2': 'Feb 11 2026',
   '0.1.0': 'Feb 11 2026',
